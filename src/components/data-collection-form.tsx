@@ -84,23 +84,7 @@ export function DataCollectionForm({ onSubmit }: DataCollectionFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Photo</FormLabel>
-                  <div className="flex items-center gap-4">
-                    <FormControl>
-                      <>
-                        <Input 
-                          type="file" 
-                          accept="image/*"
-                          className="hidden"
-                          ref={fileInputRef}
-                          onChange={(e) => {
-                             field.onChange(e.target.files);
-                             if (e.target.files && e.target.files[0]) {
-                              setPhotoPreview(URL.createObjectURL(e.target.files[0]));
-                             } else {
-                              setPhotoPreview(null);
-                             }
-                          }}
-                        />
+                    <div className="flex items-center gap-4">
                         <div className="flex items-center gap-4 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                           <Avatar className="h-24 w-24">
                             <AvatarImage src={photoPreview ?? undefined} alt="Photo preview" />
@@ -110,9 +94,26 @@ export function DataCollectionForm({ onSubmit }: DataCollectionFormProps) {
                           </Avatar>
                           <span className="text-sm text-muted-foreground">Click to upload photo</span>
                         </div>
-                      </>
+                    </div>
+                    <FormControl>
+                        <Input 
+                          type="file" 
+                          accept="image/*"
+                          className="hidden"
+                          ref={(e) => {
+                            field.ref(e);
+                            if (fileInputRef) fileInputRef.current = e;
+                          }}
+                          onChange={(e) => {
+                             field.onChange(e.target.files);
+                             if (e.target.files && e.target.files[0]) {
+                              setPhotoPreview(URL.createObjectURL(e.target.files[0]));
+                             } else {
+                              setPhotoPreview(null);
+                             }
+                          }}
+                        />
                     </FormControl>
-                  </div>
                   <FormMessage />
                 </FormItem>
               )}
