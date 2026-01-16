@@ -53,12 +53,14 @@ export function UserInfoDisplay({ userData, onAccept }: UserInfoDisplayProps) {
             await navigator.share({ title: 'User Profile', text });
             toast({ title: "Shared Successfully" });
         } catch (error) {
-            console.error('Error sharing:', error);
-            toast({
-              title: "Sharing failed",
-              description: "Could not share the information.",
-              variant: "destructive",
-            });
+            // We ignore AbortError which is triggered when the user cancels the share dialog.
+            if ((error as Error).name !== 'AbortError') {
+              toast({
+                title: "Sharing failed",
+                description: "Could not share the information. Permission may have been denied.",
+                variant: "destructive",
+              });
+            }
         }
     } else {
         try {
