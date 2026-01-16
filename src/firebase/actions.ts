@@ -4,8 +4,8 @@ import { collection, doc, serverTimestamp, setDoc, getFirestore } from "firebase
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { type FormValues, type UserData } from "@/components/data-collection-form";
 import { FirebaseApp } from "firebase/app";
-import { errorEmitter } from "./error-emitter";
-import { FirestorePermissionError } from "./errors";
+import { errorEmitter } from "@/firebase/error-emitter";
+import { FirestorePermissionError } from "@/firebase/errors";
 
 
 // Caches the anonymous user to avoid re-authenticating on every action.
