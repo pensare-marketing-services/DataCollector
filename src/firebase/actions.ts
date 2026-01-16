@@ -1,9 +1,12 @@
 'use client';
 import { getAuth, signInAnonymously, type User } from "firebase/auth";
-import { collection, addDoc, serverTimestamp, getFirestore, doc, setDoc } from "firebase/firestore";
+import { collection, doc, serverTimestamp, setDoc, getFirestore } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { type FormValues, type UserData } from "@/components/data-collection-form";
 import { FirebaseApp } from "firebase/app";
+import { errorEmitter } from "./error-emitter";
+import { FirestorePermissionError } from "./errors";
+
 
 // Caches the anonymous user to avoid re-authenticating on every action.
 let anonymousUser: User | null = null;
@@ -27,36 +30,45 @@ export async function submitUserData(app: FirebaseApp, values: FormValues): Prom
     const db = getFirestore(app);
     const storage = getStorage(app);
 
-    if (values.photo && values.photo.length > 0) {
-        const photoFile = values.photo[0];
-        
-        // Use a consistent filename. This will overwrite previous uploads for the same user.
-        const photoPath = `user-photos/${user.uid}/profile.jpg`;
-        const storageRef = ref(storage, photoPath);
-        
-        await uploadBytes(storageRef, photoFile);
-        const photoURL = await getDownloadURL(storageRef);
-
-        const dataToSave = {
-            userId: user.uid,
-            name: values.name,
-            phone: values.phone,
-            age: values.age,
-            mandalam: values.mandalam,
-            mekhala: values.mekhala,
-            unit: values.unit,
-            photoURL,
-            createdAt: serverTimestamp(),
-        };
-        
-        // Use the user's UID as the document ID for easy retrieval.
-        const userDocRef = doc(db, "users", user.uid);
-        await setDoc(userDocRef, dataToSave);
-
-        const { photo, ...rest } = values;
-        
-        return { ...rest, photoURL: photoURL, id: user.uid };
+    if (!values.photo || values.photo.length === 0) {
+        throw new Error("Photo is required.");
     }
+    
+    const photoFile = values.photo[0];
+    const photoPath = `user-photos/${user.uid}/profile.jpg`;
+    const storageRef = ref(storage, photoPath);
 
-    throw new Error("Photo is required.");
+    await uploadBytes(storageRef, photoFile);
+    const photoURL = await getDownloadURL(storageRef);
+
+    const dataToSave = {
+        id: user.uid,
+        name: values.name,
+        phoneNumber: values.phone,
+        age: values.age,
+        mandalam: values.mandalam,
+        mekhala: values.mekhala,
+        unit: values.unit,
+        photoUrl: photoURL,
+        submissionDate: serverTimestamp(),
+        acceptedDeclaration: true, // Assuming submission implies declaration acceptance
+    };
+
+    const userDocRef = doc(db, "gatherwise_users", user.uid);
+
+    try {
+        await setDoc(userDocRef, dataToSave);
+    } catch (serverError: any) {
+        const permissionError = new FirestorePermissionError({
+            path: userDocRef.path,
+            operation: 'create',
+            requestResourceData: dataToSave,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        // Re-throw the original error to be caught by the calling component
+        throw serverError;
+    }
+    
+    const { photo, ...rest } = values;
+    return { ...rest, photoURL: photoURL, id: user.uid };
 }

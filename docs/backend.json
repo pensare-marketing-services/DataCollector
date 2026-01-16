@@ -10,6 +10,10 @@
           "type": "string",
           "description": "Unique identifier for the GatherWiseUser entity."
         },
+        "name": {
+          "type": "string",
+          "description": "User's full name."
+        },
         "photoUrl": {
           "type": "string",
           "description": "URL of the user's profile photo.",
@@ -47,6 +51,7 @@
       },
       "required": [
         "id",
+        "name",
         "photoUrl",
         "phoneNumber",
         "age",
@@ -65,24 +70,11 @@
     ]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/gatherwise_users/{gatherwiseUserId}",
-        "definition": {
-          "entityName": "GatherWiseUser",
-          "schema": {
-            "$ref": "#/backend/entities/GatherWiseUser"
-          },
-          "description": "Stores data submitted by users of the GatherWise app. Each document represents a single user's submission. Supports filtering on name, age, mandalam, mekhala, and unit.",
-          "params": [
-            {
-              "name": "gatherwiseUserId",
-              "description": "Unique identifier for each user's data submission."
-            }
-          ]
-        }
-      }
-    ],
-    "reasoning": "The Firestore structure is designed to address the requirements for the GatherWise application, focusing on data collection, user information storage, and future dashboard filtering capabilities. It leverages path-based ownership and segregation of data to ensure secure and efficient data access. Given the application's need to collect user data and potentially implement a dashboard with filtering, the following structure is proposed:\n\n1.  **User Data Storage**: User data will be stored under a collection named `gatherwise_users`. Each document in this collection will represent a user's submission.\n\n2.  **Authorization Independence**:  Since there are no role-based authorization requirements specified and access is primarily based on individual user submissions, direct path-based ownership is most appropriate. No denormalization is needed as there's no collaborative aspect or shared data access.\n\n3.  **QAPs (Querying, Authorization, Predictability, Scalability)**: The structure supports required QAPs:\n    *   **Querying**: The design will allow for efficient filtering on `name`, `age`, `mandalam`, `mekhala`, and `unit` as requested for future dashboard implementation using Firestore's indexing capabilities.\n    *   **Authorization**: Security rules can be straightforward since access is based on individual document ownership (if further access controls are needed).\n    *   **Predictability**: The schema enforces a consistent structure for all user data submissions.\n\n4.  **Dashboard Filters**: The app requirements dictate filters based on `name`, `age`, `mandalam`, `mekhala`, and `unit` attributes. Given that, the structure will allow for compound queries on these fields."
+    "/gatherwise_users/{gatherwiseUserId}": {
+      "schema": {
+        "$ref": "#/backend/entities/GatherWiseUser"
+      },
+      "description": "Stores data submitted by users of the GatherWise app. Each document represents a single user's submission."
+    }
   }
 }

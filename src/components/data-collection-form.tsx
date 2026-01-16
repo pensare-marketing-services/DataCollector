@@ -54,7 +54,7 @@ export function DataCollectionForm({ onSubmit }: DataCollectionFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { app } = useFirebaseApp();
+  const app = useFirebaseApp();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -86,7 +86,6 @@ export function DataCollectionForm({ onSubmit }: DataCollectionFormProps) {
             description: "Your data has been submitted successfully.",
         });
     } catch (error) {
-        console.error(error);
         toast({
             variant: "destructive",
             title: "Uh oh! Something went wrong.",
