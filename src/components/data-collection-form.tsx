@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -48,6 +48,7 @@ interface DataCollectionFormProps {
 
 export function DataCollectionForm({ onSubmit }: DataCollectionFormProps) {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -61,8 +62,6 @@ export function DataCollectionForm({ onSubmit }: DataCollectionFormProps) {
     },
   });
   
-  const photoRef = form.register("photo");
-
   function handleFormSubmit(values: FormValues) {
     if (values.photo && values.photo.length > 0) {
       const photoURL = URL.createObjectURL(values.photo[0]);
@@ -86,26 +85,32 @@ export function DataCollectionForm({ onSubmit }: DataCollectionFormProps) {
                 <FormItem>
                   <FormLabel>Photo</FormLabel>
                   <div className="flex items-center gap-4">
-                     <Avatar className="h-24 w-24">
-                        <AvatarImage src={photoPreview ?? undefined} alt="Photo preview" />
-                        <AvatarFallback>
-                          <User className="h-10 w-10 text-muted-foreground" />
-                        </AvatarFallback>
-                      </Avatar>
                     <FormControl>
-                      <Input 
-                        type="file" 
-                        accept="image/*"
-                        {...photoRef}
-                        onChange={(e) => {
-                           field.onChange(e.target.files);
-                           if (e.target.files && e.target.files[0]) {
-                            setPhotoPreview(URL.createObjectURL(e.target.files[0]));
-                           } else {
-                            setPhotoPreview(null);
-                           }
-                        }}
-                      />
+                      <>
+                        <Input 
+                          type="file" 
+                          accept="image/*"
+                          className="hidden"
+                          ref={fileInputRef}
+                          onChange={(e) => {
+                             field.onChange(e.target.files);
+                             if (e.target.files && e.target.files[0]) {
+                              setPhotoPreview(URL.createObjectURL(e.target.files[0]));
+                             } else {
+                              setPhotoPreview(null);
+                             }
+                          }}
+                        />
+                        <div className="flex items-center gap-4 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                          <Avatar className="h-24 w-24">
+                            <AvatarImage src={photoPreview ?? undefined} alt="Photo preview" />
+                            <AvatarFallback>
+                              <User className="h-10 w-10 text-muted-foreground" />
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-sm text-muted-foreground">Click to upload photo</span>
+                        </div>
+                      </>
                     </FormControl>
                   </div>
                   <FormMessage />
