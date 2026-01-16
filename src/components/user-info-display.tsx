@@ -1,6 +1,9 @@
 "use client"
 
+import { useRef } from "react";
 import { Download, Share2, Undo2 } from "lucide-react"
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import type { UserData } from "./data-collection-form"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -22,25 +25,31 @@ const InfoRow = ({ label, value }: { label: string; value: string | number }) =>
 
 export function UserInfoDisplay({ userData, onAccept }: UserInfoDisplayProps) {
   const { toast } = useToast();
+  const printRef = useRef<HTMLDivElement>(null);
 
-  const handleDownload = () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { photo, photoURL, ...dataToDownload } = userData;
-    const headers = Object.keys(dataToDownload).join(',');
-    const values = Object.values(dataToDownload).map(val => `"${String(val).replace(/"/g, '""')}"`).join(',');
-    const csvContent = "data:text/csv;charset=utf-8," + headers + "\n" + values;
-    
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `${userData.name.replace(/\s+/g, '_').toLowerCase()}_data.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
+  const handleDownload = async () => {
+    const element = printRef.current;
+    if (!element) {
+      toast({
+        title: "Download Failed",
+        description: "Could not generate PDF.",
+        variant: "destructive"
+      });
+      return;
+    }
+    const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+    const data = canvas.toDataURL('image/png');
+
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+    pdf.addImage(data, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save(`${userData.name.replace(/\s+/g, '_').toLowerCase()}_profile.pdf`);
+
     toast({
       title: "Download Started",
-      description: "Your data is being downloaded as a CSV file.",
+      description: "Your profile is being downloaded as a PDF file.",
     });
   };
 
@@ -81,7 +90,7 @@ export function UserInfoDisplay({ userData, onAccept }: UserInfoDisplayProps) {
 
 
   return (
-    <Card className="w-full">
+    <Card className="w-full" ref={printRef}>
       <CardHeader>
         <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
            <Avatar className="h-28 w-28 border-4 border-secondary">
@@ -118,7 +127,7 @@ export function UserInfoDisplay({ userData, onAccept }: UserInfoDisplayProps) {
       <CardFooter className="flex flex-col-reverse sm:flex-row items-center justify-between gap-4">
         <Button variant="outline" onClick={onAccept}><Undo2 className="mr-2 h-4 w-4"/>Go Back</Button>
         <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={handleDownload}><Download className="mr-2 h-4 w-4"/>Download CSV</Button>
+            <Button variant="outline" onClick={handleDownload}><Download className="mr-2 h-4 w-4"/>Download PDF</Button>
             <Button onClick={handleShare} className="bg-accent text-accent-foreground hover:bg-accent/90"><Share2 className="mr-2 h-4 w-4"/>Share</Button>
         </div>
       </CardFooter>
