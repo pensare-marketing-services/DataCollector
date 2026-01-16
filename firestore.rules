@@ -9,15 +9,15 @@
  *
  * ## Data Structure
  * The data is organized in a single top-level collection:
- * - `/gatherwise_users/{gatherwiseUserId}`: Each document in this collection represents
- *   a single data submission from a unique user. The document ID (`gatherwiseUserId`)
- *   must match the UID of the submitting user.
+ * - `/users/{userId}`: Each document in this collection represents a single data
+ *   submission from a unique user. The document ID (`userId`) must match the UID
+ *   of the submitting user.
  *
  * ## Key Security Decisions
  * - **Strict Ownership**: All operations (read, update, delete) on a user's data
  *   document are restricted to the authenticated user who owns that document.
  * - **No Public Listing**: To protect user privacy and prevent data scraping, listing
- *   the entire `gatherwise_users` collection is explicitly disallowed for all clients.
+ *   the entire `users` collection is explicitly disallowed for all clients.
  *   Access for a future admin dashboard would require separate, more privileged rules.
  * - **Create-Once**: A user can create their own document, but the rules are structured
  *   such that a user is associated with a single document via their UID.
@@ -25,10 +25,9 @@
  *
  * ## Denormalization for Authorization
  * To ensure data integrity and simple, performant rules, we require that each
- * `gatherwise_user` document contains an `id` field. The rules enforce that this
- * `id` field matches the authenticated user's UID upon creation and remains
- * immutable thereafter. This links the document's content to its owner without
- * requiring any extra lookups.
+ * `user` document contains an `id` field. The rules enforce that this `id` field
+ * matches the authenticated user's UID upon creation and remains immutable thereafter.
+ * This links the document's content to its owner without requiring any extra lookups.
  *
  */
 rules_version = '2';
@@ -89,23 +88,23 @@ service cloud.firestore {
      * Controls access to individual user data submissions. A user can only create,
      * read, update, or delete their own data document.
      *
-     * @path /gatherwise_users/{gatherwiseUserId}
+     * @path /users/{userId}
      *
-     * @allow (get) An authenticated user (UID 'user123') reading their own document at `/gatherwise_users/user123`.
-     * @allow (create) An anonymous authenticated user (UID 'anon456') creating their own document at `/gatherwise_users/anon456` with `{id: 'anon456', ...}` in the body.
+     * @allow (get) An authenticated user (UID 'user123') reading their own document at `/users/user123`.
+     * @allow (create) An anonymous authenticated user (UID 'anon456') creating their own document at `/users/anon456` with `{id: 'anon456', ...}` in the body.
      * @deny (list) Any user, authenticated or not, trying to list all documents in the collection.
-     * @deny (update) An authenticated user (UID 'user123') trying to update a document owned by another user at `/gatherwise_users/user789`.
+     * @deny (update) An authenticated user (UID 'user123') trying to update a document owned by another user at `/users/user789`.
      *
      * @principle
      * Enforces a strict document ownership model where a user's access is confined
      * to the data record that corresponds to their own user ID.
      */
-    match /gatherwise_users/{gatherwiseUserId} {
-      allow get: if isOwner(gatherwiseUserId);
+    match /users/{userId} {
+      allow get: if isOwner(userId);
       allow list: if false; // Deny listing to protect all users' privacy.
-      allow create: if isOwner(gatherwiseUserId) && isValidCreateData(gatherwiseUserId);
-      allow update: if isExistingOwner(gatherwiseUserId) && isValidUpdateData();
-      allow delete: if isExistingOwner(gatherwiseUserId);
+      allow create: if isOwner(userId) && isValidCreateData(userId);
+      allow update: if isExistingOwner(userId) && isValidUpdateData();
+      allow delete: if isExistingOwner(userId);
     }
   }
 }

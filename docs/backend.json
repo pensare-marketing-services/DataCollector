@@ -1,14 +1,14 @@
 {
   "entities": {
-    "GatherWiseUser": {
+    "User": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "GatherWiseUser",
+      "title": "User",
       "type": "object",
-      "description": "Represents a user who has submitted data through the GatherWise app.",
+      "description": "Represents a user who has submitted data through the app.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the GatherWiseUser entity."
+          "description": "Unique identifier for the User entity, matches Firebase Auth UID."
         },
         "name": {
           "type": "string",
@@ -70,11 +70,11 @@
     ]
   },
   "firestore": {
-    "/gatherwise_users/{gatherwiseUserId}": {
+    "/users/{userId}": {
       "schema": {
-        "$ref": "#/backend/entities/GatherWiseUser"
+        "$ref": "#/backend/entities/User"
       },
-      "description": "Stores data submitted by users of the GatherWise app. Each document represents a single user's submission."
+      "description": "Stores data submitted by users. Each document represents a single user's submission and the document ID is the user's Firebase Auth UID."
     }
   }
 }

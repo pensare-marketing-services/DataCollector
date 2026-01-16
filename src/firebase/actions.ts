@@ -54,7 +54,7 @@ export async function submitUserData(app: FirebaseApp, values: FormValues): Prom
         acceptedDeclaration: true, // Assuming submission implies declaration acceptance
     };
 
-    const userDocRef = doc(db, "gatherwise_users", user.uid);
+    const userDocRef = doc(db, "users", user.uid);
 
     try {
         await setDoc(userDocRef, dataToSave);
