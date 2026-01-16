@@ -86,11 +86,13 @@ export function DataCollectionForm({ onSubmit }: DataCollectionFormProps) {
             description: "Your data has been submitted successfully.",
         });
     } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred. Please check the console for more details.";
         toast({
             variant: "destructive",
-            title: "Uh oh! Something went wrong.",
-            description: "There was a problem submitting your data. Please try again.",
+            title: "Submission Failed",
+            description: errorMessage,
         });
+        console.error("Submission Error:", error);
     } finally {
         setIsSubmitting(false);
     }
