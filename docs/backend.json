@@ -1,73 +1,88 @@
 {
   "entities": {
-    "UserProfile": {
-      "title": "User Profile",
-      "description": "Represents a user's profile data collected through the form.",
+    "GatherWiseUser": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "GatherWiseUser",
       "type": "object",
+      "description": "Represents a user who has submitted data through the GatherWise app.",
       "properties": {
-        "userId": {
+        "id": {
           "type": "string",
-          "description": "The UID of the user from Firebase Authentication."
+          "description": "Unique identifier for the GatherWiseUser entity."
         },
-        "name": {
+        "photoUrl": {
           "type": "string",
-          "description": "The user's full name."
-        },
-        "photoURL": {
-          "type": "string",
-          "description": "URL of the user's profile photo stored in Firebase Storage.",
+          "description": "URL of the user's profile photo.",
           "format": "uri"
         },
-        "phone": {
+        "phoneNumber": {
           "type": "string",
-          "description": "The user's phone number."
+          "description": "User's phone number."
         },
         "age": {
           "type": "number",
-          "description": "The user's age."
+          "description": "User's age."
         },
         "mandalam": {
           "type": "string",
-          "description": "The user's Mandalam."
+          "description": "User's Mandalam."
         },
         "mekhala": {
           "type": "string",
-          "description": "The user's Mekhala."
+          "description": "User's Mekhala."
         },
         "unit": {
           "type": "string",
-          "description": "The user's Unit."
+          "description": "User's Unit."
         },
-        "createdAt": {
+        "submissionDate": {
           "type": "string",
-          "format": "date-time",
-          "description": "Timestamp of when the profile was created."
+          "description": "Date and time when the user submitted the data.",
+          "format": "date-time"
+        },
+        "acceptedDeclaration": {
+          "type": "boolean",
+          "description": "Indicates whether the user accepted the declaration statement."
         }
       },
       "required": [
-        "userId",
-        "name",
-        "photoURL",
-        "phone",
+        "id",
+        "photoUrl",
+        "phoneNumber",
         "age",
         "mandalam",
         "mekhala",
         "unit",
-        "createdAt"
+        "submissionDate",
+        "acceptedDeclaration"
       ]
     }
   },
   "auth": {
     "providers": [
+      "password",
       "anonymous"
     ]
   },
   "firestore": {
-    "/users/{userId}": {
-      "schema": {
-        "$ref": "#/backend/entities/UserProfile"
-      },
-      "description": "Stores individual user profiles."
-    }
+    "structure": [
+      {
+        "path": "/gatherwise_users/{gatherwiseUserId}",
+        "definition": {
+          "entityName": "GatherWiseUser",
+          "schema": {
+            "$ref": "#/backend/entities/GatherWiseUser"
+          },
+          "description": "Stores data submitted by users of the GatherWise app. Each document represents a single user's submission. Supports filtering on name, age, mandalam, mekhala, and unit.",
+          "params": [
+            {
+              "name": "gatherwiseUserId",
+              "description": "Unique identifier for each user's data submission."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to address the requirements for the GatherWise application, focusing on data collection, user information storage, and future dashboard filtering capabilities. It leverages path-based ownership and segregation of data to ensure secure and efficient data access. Given the application's need to collect user data and potentially implement a dashboard with filtering, the following structure is proposed:\n\n1.  **User Data Storage**: User data will be stored under a collection named `gatherwise_users`. Each document in this collection will represent a user's submission.\n\n2.  **Authorization Independence**:  Since there are no role-based authorization requirements specified and access is primarily based on individual user submissions, direct path-based ownership is most appropriate. No denormalization is needed as there's no collaborative aspect or shared data access.\n\n3.  **QAPs (Querying, Authorization, Predictability, Scalability)**: The structure supports required QAPs:\n    *   **Querying**: The design will allow for efficient filtering on `name`, `age`, `mandalam`, `mekhala`, and `unit` as requested for future dashboard implementation using Firestore's indexing capabilities.\n    *   **Authorization**: Security rules can be straightforward since access is based on individual document ownership (if further access controls are needed).\n    *   **Predictability**: The schema enforces a consistent structure for all user data submissions.\n\n4.  **Dashboard Filters**: The app requirements dictate filters based on `name`, `age`, `mandalam`, `mekhala`, and `unit` attributes. Given that, the structure will allow for compound queries on these fields."
   }
 }
