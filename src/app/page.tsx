@@ -1,14 +1,72 @@
 "use client";
 
 import { useState } from 'react';
-import { DataCollectionForm, type UserData } from '@/components/data-collection-form';
+import { DataCollectionForm, type UserData, type FormValues } from '@/components/data-collection-form';
 import { UserInfoDisplay } from '@/components/user-info-display';
+import { useFirebaseApp } from '@/firebase';
+import { useToast } from '@/hooks/use-toast';
+import { submitUserData } from '@/firebase/actions';
 
 export default function Home() {
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const app = useFirebaseApp();
+  const { toast } = useToast();
 
-  const handleFormSubmit = (data: UserData) => {
-    setUserData(data);
+  const handleFormSubmit = async (values: FormValues) => {
+    if (!app) {
+      toast({
+        variant: "destructive",
+        title: "Firebase not initialized",
+        description: "The application is not connected to the database.",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    const { photo, ...rest } = values;
+    const photoFile = photo?.[0];
+
+    if (!photoFile) {
+        toast({
+            variant: "destructive",
+            title: "Submission Failed",
+            description: "A photo is required.",
+        });
+        setIsSubmitting(false);
+        return;
+    }
+    
+    // Create a temporary object URL for the image to show it immediately
+    const photoPreviewUrl = URL.createObjectURL(photoFile);
+
+    // Immediately update the UI to show the user info page
+    setUserData({
+      ...rest,
+      photoURL: photoPreviewUrl, 
+    });
+
+    // Perform the actual submission in the background
+    try {
+      const submittedData = await submitUserData(app, values);
+      // Once submission is successful, update the state with the permanent photo URL
+      setUserData(submittedData);
+      toast({
+          title: "Success!",
+          description: "Your data has been saved successfully.",
+      });
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+        toast({
+            variant: "destructive",
+            title: "Background Submission Failed",
+            description: `Your details were displayed, but saving to the database failed: ${errorMessage}`,
+        });
+        console.error("Submission Error:", error);
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   const handleReset = () => {
@@ -30,7 +88,7 @@ export default function Home() {
           
           {
             !userData ? (
-              <DataCollectionForm onSubmit={handleFormSubmit} />
+              <DataCollectionForm onSubmit={handleFormSubmit} isSubmitting={isSubmitting} />
             ) : (
               <UserInfoDisplay userData={userData} onAccept={handleReset} />
             )

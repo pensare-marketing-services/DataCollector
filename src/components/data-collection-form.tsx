@@ -18,9 +18,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { useToast } from "@/hooks/use-toast"
-import { useFirebaseApp } from "@/firebase"
-import { submitUserData } from "@/firebase/actions"
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -46,16 +43,14 @@ export type FormValues = z.infer<typeof formSchema>;
 export type UserData = Omit<FormValues, 'photo'> & { photoURL: string; id?: string };
 
 interface DataCollectionFormProps {
-  onSubmit: (data: UserData) => void;
+  onSubmit: (data: FormValues) => void;
+  isSubmitting: boolean;
 }
 
-export function DataCollectionForm({ onSubmit }: DataCollectionFormProps) {
+export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFormProps) {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const app = useFirebaseApp();
-
+  
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -67,36 +62,6 @@ export function DataCollectionForm({ onSubmit }: DataCollectionFormProps) {
       unit: "",
     },
   });
-  
-  async function handleFormSubmit(values: FormValues) {
-    if (!app) {
-      toast({
-        variant: "destructive",
-        title: "Firebase not initialized",
-        description: "The application is not connected to the database.",
-      });
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-        const submittedData = await submitUserData(app, values);
-        onSubmit(submittedData);
-        toast({
-            title: "Success!",
-            description: "Your data has been submitted successfully.",
-        });
-    } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred. Please check the console for more details.";
-        toast({
-            variant: "destructive",
-            title: "Submission Failed",
-            description: errorMessage,
-        });
-        console.error("Submission Error:", error);
-    } finally {
-        setIsSubmitting(false);
-    }
-  }
 
   return (
     <Card className="w-full">
@@ -105,7 +70,7 @@ export function DataCollectionForm({ onSubmit }: DataCollectionFormProps) {
         <CardDescription>Enter your details accurately.</CardDescription>
       </CardHeader>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleFormSubmit)}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardContent className="space-y-6">
             <FormField
               control={form.control}
