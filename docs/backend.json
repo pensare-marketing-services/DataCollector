@@ -1,0 +1,73 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Represents a user's profile data collected through the form.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The UID of the user from Firebase Authentication."
+        },
+        "name": {
+          "type": "string",
+          "description": "The user's full name."
+        },
+        "photoURL": {
+          "type": "string",
+          "description": "URL of the user's profile photo stored in Firebase Storage.",
+          "format": "uri"
+        },
+        "phone": {
+          "type": "string",
+          "description": "The user's phone number."
+        },
+        "age": {
+          "type": "number",
+          "description": "The user's age."
+        },
+        "mandalam": {
+          "type": "string",
+          "description": "The user's Mandalam."
+        },
+        "mekhala": {
+          "type": "string",
+          "description": "The user's Mekhala."
+        },
+        "unit": {
+          "type": "string",
+          "description": "The user's Unit."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp of when the profile was created."
+        }
+      },
+      "required": [
+        "userId",
+        "name",
+        "photoURL",
+        "phone",
+        "age",
+        "mandalam",
+        "mekhala",
+        "unit",
+        "createdAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/backend/entities/UserProfile"
+      },
+      "description": "Stores individual user profiles."
+    }
+  }
+}

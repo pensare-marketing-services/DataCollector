@@ -4,7 +4,7 @@ import { useRef, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { User } from "lucide-react"
+import { Loader2, User } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -18,6 +18,9 @@ import {
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useToast } from "@/hooks/use-toast"
+import { useFirebaseApp } from "@/firebase"
+import { submitUserData } from "@/firebase/actions"
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -40,7 +43,7 @@ const formSchema = z.object({
 });
 
 export type FormValues = z.infer<typeof formSchema>;
-export type UserData = FormValues & { photoURL: string };
+export type UserData = Omit<FormValues, 'photo'> & { photoURL: string; id?: string };
 
 interface DataCollectionFormProps {
   onSubmit: (data: UserData) => void;
@@ -49,6 +52,9 @@ interface DataCollectionFormProps {
 export function DataCollectionForm({ onSubmit }: DataCollectionFormProps) {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { app } = useFirebaseApp();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -62,10 +68,32 @@ export function DataCollectionForm({ onSubmit }: DataCollectionFormProps) {
     },
   });
   
-  function handleFormSubmit(values: FormValues) {
-    if (values.photo && values.photo.length > 0) {
-      const photoURL = URL.createObjectURL(values.photo[0]);
-      onSubmit({ ...values, photoURL });
+  async function handleFormSubmit(values: FormValues) {
+    if (!app) {
+      toast({
+        variant: "destructive",
+        title: "Firebase not initialized",
+        description: "The application is not connected to the database.",
+      });
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+        const submittedData = await submitUserData(app, values);
+        onSubmit(submittedData);
+        toast({
+            title: "Success!",
+            description: "Your data has been submitted successfully.",
+        });
+    } catch (error) {
+        console.error(error);
+        toast({
+            variant: "destructive",
+            title: "Uh oh! Something went wrong.",
+            description: "There was a problem submitting your data. Please try again.",
+        });
+    } finally {
+        setIsSubmitting(false);
     }
   }
 
@@ -202,7 +230,10 @@ export function DataCollectionForm({ onSubmit }: DataCollectionFormProps) {
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90">Submit</Button>
+            <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90" disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Submit
+            </Button>
           </CardFooter>
         </form>
       </Form>

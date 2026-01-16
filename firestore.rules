@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      // Allow anyone to create a user profile. In a real app, you might want to
+      // restrict this to only authenticated users.
+      allow create: if true;
+
+      // Allow anyone to read user profiles. This is for demonstration.
+      // For a production app, you'd likely restrict this to only the user
+      // themselves or other authorized users.
+      allow read: if true;
+
+      // Allow a user to update or delete their own profile.
+      // This rule requires that the user is authenticated.
+      allow update, delete: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
