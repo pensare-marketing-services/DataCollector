@@ -21,10 +21,10 @@ export default function Home() {
         <div className="w-full max-w-2xl">
           <div className="text-center mb-8">
             <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary">
-              GatherWise
+              CollectIT
             </h1>
             <p className="text-muted-foreground mt-2">
-              {userData ? "Review your submitted details." : "Please fill in your details below."}
+              {userData ? "" : "Please fill in your details below."}
             </p>
           </div>
           
