@@ -146,7 +146,7 @@ export function DataCollectionForm({ onSubmit }: DataCollectionFormProps) {
                   <FormItem>
                     <FormLabel>Age</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="e.g., 25" {...field} />
+                      <Input type="number" placeholder="e.g., 25" {...field} value={field.value ?? ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
