@@ -1,6 +1,6 @@
 'use client';
 import { getAuth, signInAnonymously, type User } from "firebase/auth";
-import { collection, doc, serverTimestamp, setDoc, getFirestore } from "firebase/firestore";
+import { collection, doc, setDoc, getFirestore } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { type FormValues, type UserData } from "@/components/data-collection-form";
 import { FirebaseApp } from "firebase/app";
@@ -50,7 +50,7 @@ export async function submitUserData(app: FirebaseApp, values: FormValues): Prom
         mekhala: values.mekhala,
         unit: values.unit,
         photoUrl: photoURL,
-        submissionDate: serverTimestamp(),
+        submissionDate: new Date().toISOString(),
         acceptedDeclaration: true, // Assuming submission implies declaration acceptance
     };
 
