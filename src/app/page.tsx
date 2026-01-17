@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import { getAuth, signOut } from "firebase/auth";
 import { DataCollectionForm, type UserData, type FormValues } from '@/components/data-collection-form';
 import { UserInfoDisplay } from '@/components/user-info-display';
 import { useFirebaseApp } from '@/firebase';
@@ -60,6 +61,17 @@ export default function Home() {
   };
 
   const handleReset = () => {
+    if (app) {
+        const auth = getAuth(app);
+        signOut(auth).catch((error) => {
+            console.error("Sign out error:", error);
+            toast({
+                variant: "destructive",
+                title: "Failed to start new session",
+                description: "Could not sign out the previous user. Please refresh the page.",
+            });
+        });
+    }
     setUserData(null);
   };
 

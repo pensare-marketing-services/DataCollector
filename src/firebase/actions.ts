@@ -8,21 +8,13 @@ import { errorEmitter } from "@/firebase/error-emitter";
 import { FirestorePermissionError } from "@/firebase/errors";
 
 
-// Caches the anonymous user to avoid re-authenticating on every action.
-let anonymousUser: User | null = null;
-
 async function getAnonymousUser(app: FirebaseApp): Promise<User> {
     const auth = getAuth(app);
     if (auth.currentUser) {
-        anonymousUser = auth.currentUser;
-        return anonymousUser;
-    }
-    if (anonymousUser) {
-        return anonymousUser;
+        return auth.currentUser;
     }
     const userCredential = await signInAnonymously(auth);
-    anonymousUser = userCredential.user;
-    return anonymousUser;
+    return userCredential.user;
 }
 
 export async function submitUserData(app: FirebaseApp, values: FormValues): Promise<UserData> {
