@@ -1,108 +1,121 @@
-/**
- * # Firestore Security Rules: GatherWise App
- *
- * ## Core Philosophy
- * This ruleset enforces a strict user-ownership model. The primary goal is to ensure
- * that user-submitted data is private and can only be managed by the user who created it.
- * Anonymous users are permitted to sign in and submit their data once, after which
- * that data record is tied exclusively to their anonymous user ID.
- *
- * ## Data Structure
- * The data is organized in a single top-level collection:
- * - `/users/{userId}`: Each document in this collection represents a single data
- *   submission from a unique user. The document ID (`userId`) must match the UID
- *   of the submitting user.
- *
- * ## Key Security Decisions
- * - **Strict Ownership**: All operations (read, update, delete) on a user's data
- *   document are restricted to the authenticated user who owns that document.
- * - **No Public Listing**: To protect user privacy and prevent data scraping, listing
- *   the entire `users` collection is explicitly disallowed for all clients.
- *   Access for a future admin dashboard would require separate, more privileged rules.
- * - **Create-Once**: A user can create their own document, but the rules are structured
- *   such that a user is associated with a single document via their UID.
- * - **Default Deny**: Any operation not explicitly granted is denied.
- *
- * ## Denormalization for Authorization
- * To ensure data integrity and simple, performant rules, we require that each
- * `user` document contains an `id` field. The rules enforce that this `id` field
- * matches the authenticated user's UID upon creation and remains immutable thereafter.
- * This links the document's content to its owner without requiring any extra lookups.
- *
- */
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ------------------------------------------------------------------------
-    // Helper Functions
-    // ------------------------------------------------------------------------
+    /**
+     * =====================================================================
+     *                          Documentation
+     * =====================================================================
+     *
+     * @Core_Philosophy
+     * This ruleset enforces a strict user-ownership model. Each user can
+     * create, read, update, and delete only their own data document. The
+     * primary goal is to ensure user privacy and data integrity by default.
+     *
+     * @Data_Structure
+     * The data structure is a single, top-level collection named
+     * 'gatherwise_users'. Each document in this collection represents a
+     * unique user's submitted data, and the document ID is the user's
+     * authentication UID.
+     *
+     * @Key_Security_Decisions
+     * - User Data Isolation: Users are strictly confined to their own
+     *   document located at `/gatherwise_users/{request.auth.uid}`.
+     * - Disallowed Listing: To prevent exposing Personally Identifiable
+     *   Information (PII) of all users, listing documents in the
+     *   'gatherwise_users' collection is explicitly disabled for all
+     *   client-side requests. This is a critical privacy measure. A secure
+     *   backend or a future admin role will be required to query the full
+     *   dataset for features like dashboards.
+     * - Anonymous User Submissions: The rules support anonymous authentication
+     *   providers by treating each anonymous user as a distinct identity
+     *   with its own unique UID, capable of managing its own single document.
+     *
+     * @Denormalization_for_Authorization
+     * To ensure a user's identity is permanently linked to their data,
+     * the user's UID is stored both as the document ID and in an 'id' field
+     * within the document itself. Rules enforce that this internal 'id'
+     * field is set correctly on creation and is immutable thereafter. This
+     * prevents any ambiguity or attempts to re-assign document ownership.
+     *
+     * @Structural_Segregation
+     * Not applicable in this model, as all data is considered private to
+     * the user who created it. There is no public/private distinction.
+     *
+     */
+
+    // =====================================================================
+    //                        Helper Functions
+    // =====================================================================
 
     /**
-     * Checks if the request is from a signed-in user.
+     * Returns true if the user is signed in.
      */
     function isSignedIn() {
       return request.auth != null;
     }
 
     /**
-     * Checks if the requesting user's UID matches the provided userId.
-     * This is the foundation of the ownership model.
+     * Returns true if the request is from the user who owns the document,
+     * based on the document's ID matching their authentication UID.
      */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
     /**
-     * For update/delete operations, checks if the document exists AND the
-     * requester is the owner. Prevents modifying non-existent data.
+     * Returns true if the request is from the owner of an existing document.
+     * Used for safe update and delete operations.
      */
     function isExistingOwner(userId) {
       return isOwner(userId) && resource != null;
     }
 
     /**
-     * Validates incoming data on creation. In Prototyping Mode, this is limited
-     * to fields critical for authorization and relational integrity.
-     * - Enforces that the document's internal `id` field matches the owner's UID.
+     * Validates that the 'id' field within a new document matches the
+     * user's UID, ensuring relational integrity from the start.
      */
-    function isValidCreateData(userId) {
-      let data = request.resource.data;
-      return data.id == userId &&
-             data.name is string &&
-             data.phone is string &&
-             data.age is number &&
-             data.mandalam is string &&
-             data.mekhala is string &&
-             data.unit is string &&
-             data.submissionDate is string &&
-             data.acceptedDeclaration == true;
+    function hasValidIdOnCreate(userId) {
+      return request.resource.data.id == userId;
     }
 
     /**
-     * Validates incoming data on update. In Prototyping Mode, this is limited
-     * to ensuring critical relational fields are immutable.
-     * - Enforces that the ownership link (`id` field) cannot be changed.
+     * Validates that the 'id' field of a document is not being changed
+     * during an update, preventing ownership hijacking.
      */
-    function isValidUpdateData() {
+    function hasImmutableId() {
       return request.resource.data.id == resource.data.id;
     }
 
-    // ------------------------------------------------------------------------
-    // Collection Rules
-    // ------------------------------------------------------------------------
+    // =====================================================================
+    //                           Collection Rules
+    // =====================================================================
 
     /**
      * @description
-     * Controls access to individual user data submissions. A user can only create,
-     * read, update, or delete their own data document.
+     *   Rules for the GatherWise user data collection. A user can create,
+     *   read, update, and delete ONLY their own document. Listing all
+     *   users is explicitly forbidden to protect user privacy.
+     * @path /gatherwise_users/{gatherwiseUserId}
+     * @allow (create) An authenticated user creating their own profile document.
+     *   `db.collection('gatherwise_users').doc('user_abc').set({ id: 'user_abc', ... })`
+     *   when authenticated as `user_abc`.
+     * @deny (list) Any user, authenticated or not, attempting to list all
+     *   documents in the collection. `db.collection('gatherwise_users').get()`
+     *   will always fail.
+     * @deny (update) A user trying to update another user's document.
+     * @principle
+     *   Restricts access to a user's own data tree and enforces strict
+     *   document ownership for all operations.
      */
-    match /users/{userId} {
-      allow get: if isOwner(userId);
-      allow list: if false; // Deny listing to protect all users' privacy.
-      allow create: if isOwner(userId) && isValidCreateData(userId);
-      allow update: if isExistingOwner(userId) && isValidUpdateData();
-      allow delete: if isExistingOwner(userId);
+    match /gatherwise_users/{gatherwiseUserId} {
+      allow get: if isOwner(gatherwiseUserId);
+      allow list: if false;
+      allow create: if isOwner(gatherwiseUserId) && hasValidIdOnCreate(gatherwiseUserId);
+      allow update: if isExistingOwner(gatherwiseUserId) && hasImmutableId();
+      allow delete: if isExistingOwner(gatherwiseUserId);
     }
+
   }
 }
