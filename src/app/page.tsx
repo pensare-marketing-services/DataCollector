@@ -14,7 +14,7 @@ export default function Home() {
   const app = useFirebaseApp();
   const { toast } = useToast();
 
-  const handleFormSubmit = (values: FormValues) => {
+  const handleFormSubmit = async (values: FormValues) => {
     if (!app) {
       toast({
         variant: "destructive",
@@ -25,25 +25,23 @@ export default function Home() {
     }
     
     setIsSubmitting(true);
-
-    // Optimistically create user data for immediate UI update.
-    // The photoURL will be a temporary local URL.
-    const optimisticUserData: UserData = {
-      ...values,
-      photoURL: values.photo?.[0] ? URL.createObjectURL(values.photo[0]) : '',
-    };
-
-    // Immediately update the UI.
-    setUserData(optimisticUserData);
-    setIsSubmitting(false);
-    toast({
+    try {
+      const newUserData = await submitUserData(app, values);
+      setUserData(newUserData);
+      toast({
         title: "Success!",
-        description: "Your data has been submitted and is saving in the background.",
-    });
-
-    // Perform the actual submission in the background.
-    // This function will now handle its own errors and toasts.
-    submitUserData(app, values);
+        description: "Your data has been submitted successfully.",
+      });
+    } catch (error) {
+      console.error("Submission Failed:", error);
+      toast({
+        variant: "destructive",
+        title: "Submission Failed",
+        description: error instanceof Error ? error.message : "An unknown error occurred. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleGoBack = async () => {
