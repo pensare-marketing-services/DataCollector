@@ -1,6 +1,6 @@
 'use client';
 import { getAuth, signInAnonymously, type User } from "firebase/auth";
-import { collection, doc, setDoc, getFirestore } from "firebase/firestore";
+import { doc, setDoc, getFirestore } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { type FormValues, type UserData } from "@/components/data-collection-form";
 import { FirebaseApp } from "firebase/app";
@@ -36,21 +36,26 @@ export async function submitUserData(app: FirebaseApp, values: FormValues): Prom
         const photoPath = `user-photos/${user.uid}/profile.jpg`;
         const storageRef = ref(storage, photoPath);
 
-        await uploadBytes(storageRef, photoFile);
-        photoURL = await getDownloadURL(storageRef);
+        try {
+            await uploadBytes(storageRef, photoFile);
+            photoURL = await getDownloadURL(storageRef);
+        } catch (storageError) {
+            console.error("Photo upload failed due to a network or permissions issue:", storageError);
+            // We'll continue to save the rest of the data even if the photo upload fails.
+        }
     }
 
     const dataToSave = {
         id: user.uid,
         name: values.name,
-        phoneNumber: values.phone,
+        phone: values.phone,
         age: values.age,
         mandalam: values.mandalam,
         mekhala: values.mekhala,
         unit: values.unit,
-        photoUrl: photoURL,
+        photoURL: photoURL,
         submissionDate: new Date().toISOString(),
-        acceptedDeclaration: true, // Assuming submission implies declaration acceptance
+        acceptedDeclaration: true,
     };
 
     const userDocRef = doc(db, "users", user.uid);

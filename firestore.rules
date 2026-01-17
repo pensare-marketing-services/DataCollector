@@ -67,7 +67,16 @@ service cloud.firestore {
      * - Enforces that the document's internal `id` field matches the owner's UID.
      */
     function isValidCreateData(userId) {
-      return request.resource.data.id == userId;
+      let data = request.resource.data;
+      return data.id == userId &&
+             data.name is string &&
+             data.phone is string &&
+             data.age is number &&
+             data.mandalam is string &&
+             data.mekhala is string &&
+             data.unit is string &&
+             data.submissionDate is string &&
+             data.acceptedDeclaration == true;
     }
 
     /**
@@ -87,17 +96,6 @@ service cloud.firestore {
      * @description
      * Controls access to individual user data submissions. A user can only create,
      * read, update, or delete their own data document.
-     *
-     * @path /users/{userId}
-     *
-     * @allow (get) An authenticated user (UID 'user123') reading their own document at `/users/user123`.
-     * @allow (create) An anonymous authenticated user (UID 'anon456') creating their own document at `/users/anon456` with `{id: 'anon456', ...}` in the body.
-     * @deny (list) Any user, authenticated or not, trying to list all documents in the collection.
-     * @deny (update) An authenticated user (UID 'user123') trying to update a document owned by another user at `/users/user789`.
-     *
-     * @principle
-     * Enforces a strict document ownership model where a user's access is confined
-     * to the data record that corresponds to their own user ID.
      */
     match /users/{userId} {
       allow get: if isOwner(userId);

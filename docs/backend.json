@@ -14,12 +14,12 @@
           "type": "string",
           "description": "User's full name."
         },
-        "photoUrl": {
+        "photoURL": {
           "type": "string",
           "description": "URL of the user's profile photo.",
           "format": "uri"
         },
-        "phoneNumber": {
+        "phone": {
           "type": "string",
           "description": "User's phone number."
         },
@@ -52,7 +52,7 @@
       "required": [
         "id",
         "name",
-        "phoneNumber",
+        "phone",
         "age",
         "mandalam",
         "mekhala",
