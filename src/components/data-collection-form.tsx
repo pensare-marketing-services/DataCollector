@@ -26,11 +26,14 @@ const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   photo: z
     .custom<FileList>()
-    .refine((files) => files && files.length === 1, "Photo is required.")
-    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
+    .optional()
     .refine(
-      (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
-      "Only .jpg, .jpeg, .png and .webp formats are supported."
+        (files) => !files || files.length === 0 || (files?.[0] && files[0].size <= MAX_FILE_SIZE),
+        `Max file size is 5MB.`
+    )
+    .refine(
+        (files) => !files || files.length === 0 || (files?.[0] && ACCEPTED_IMAGE_TYPES.includes(files[0].type)),
+        "Only .jpg, .jpeg, .png and .webp formats are supported."
     ),
   phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, { message: "Please enter a valid phone number." }),
   age: z.coerce.number().int().min(1, "Age must be a positive number.").max(120, "Please enter a valid age."),
@@ -86,7 +89,7 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
                               <User className="h-10 w-10 text-muted-foreground" />
                             </AvatarFallback>
                           </Avatar>
-                          <span className="text-sm text-muted-foreground">Click to upload photo</span>
+                          <span className="text-sm text-muted-foreground">Click to upload photo (Optional)</span>
                         </div>
                     </div>
                     <FormControl>

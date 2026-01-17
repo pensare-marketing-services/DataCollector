@@ -28,18 +28,8 @@ export default function Home() {
     const { photo, ...rest } = values;
     const photoFile = photo?.[0];
 
-    if (!photoFile) {
-        toast({
-            variant: "destructive",
-            title: "Submission Failed",
-            description: "A photo is required.",
-        });
-        setIsSubmitting(false);
-        return;
-    }
-    
-    // Create a temporary object URL for the image to show it immediately
-    const photoPreviewUrl = URL.createObjectURL(photoFile);
+    // Create a temporary object URL for the image to show it immediately, if it exists
+    const photoPreviewUrl = photoFile ? URL.createObjectURL(photoFile) : "";
 
     // Immediately update the UI to show the user info page
     setUserData({

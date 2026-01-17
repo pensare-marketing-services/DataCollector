@@ -30,16 +30,15 @@ export async function submitUserData(app: FirebaseApp, values: FormValues): Prom
     const db = getFirestore(app);
     const storage = getStorage(app);
 
-    if (!values.photo || values.photo.length === 0) {
-        throw new Error("Photo is required.");
-    }
-    
-    const photoFile = values.photo[0];
-    const photoPath = `user-photos/${user.uid}/profile.jpg`;
-    const storageRef = ref(storage, photoPath);
+    let photoURL = "";
+    if (values.photo && values.photo.length > 0) {
+        const photoFile = values.photo[0];
+        const photoPath = `user-photos/${user.uid}/profile.jpg`;
+        const storageRef = ref(storage, photoPath);
 
-    await uploadBytes(storageRef, photoFile);
-    const photoURL = await getDownloadURL(storageRef);
+        await uploadBytes(storageRef, photoFile);
+        photoURL = await getDownloadURL(storageRef);
+    }
 
     const dataToSave = {
         id: user.uid,
