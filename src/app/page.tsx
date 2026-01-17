@@ -60,17 +60,19 @@ export default function Home() {
     }
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
     if (app) {
         const auth = getAuth(app);
-        signOut(auth).catch((error) => {
+        try {
+            await signOut(auth);
+        } catch (error) {
             console.error("Sign out error:", error);
             toast({
                 variant: "destructive",
                 title: "Failed to start new session",
                 description: "Could not sign out the previous user. Please refresh the page.",
             });
-        });
+        }
     }
     setUserData(null);
   };
