@@ -1,13 +1,25 @@
 rules_version = '2';
+
+// Define the security rules for the Firebase Storage service
 service firebase.storage {
+
+  // Rules apply to all files within a specified bucket
   match /b/{bucket}/o {
-    // The path here matches the path used in the client-side code to upload photos.
+
+    // Specifically match the path for user profile photos
     match /user-photos/{userId}/profile.jpg {
-      // Allow reads from anyone. This makes profile pictures public.
+
+      /**
+       * @description Allow public read access to profile photos.
+       * This allows anyone to view the images, which is common for profile pictures.
+       */
       allow read: if true;
       
-      // Allow writes only if the user is authenticated and the userId in the path
-      // matches their own UID. This prevents users from overwriting each other's photos.
+      /**
+       * @description Allow write access only for the authenticated owner of the photo.
+       * The `userId` in the path must match the UID of the user making the request.
+       * This is a critical security measure to prevent users from overwriting each other's data.
+       */
       allow write: if request.auth != null && request.auth.uid == userId;
     }
 
