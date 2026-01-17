@@ -26,22 +26,10 @@ export default function Home() {
 
     setIsSubmitting(true);
 
-    const { photo, ...rest } = values;
-    const photoFile = photo?.[0];
-
-    // Create a temporary object URL for the image to show it immediately, if it exists
-    const photoPreviewUrl = photoFile ? URL.createObjectURL(photoFile) : "";
-
-    // Immediately update the UI to show the user info page
-    setUserData({
-      ...rest,
-      photoURL: photoPreviewUrl, 
-    });
-
-    // Perform the actual submission in the background
     try {
+      // The submitUserData function now handles the entire DB operation.
       const submittedData = await submitUserData(app, values);
-      // Once submission is successful, update the state with the permanent photo URL
+      // On success, we set the user data, which triggers navigation to the info page.
       setUserData(submittedData);
       toast({
           title: "Success!",
@@ -51,8 +39,8 @@ export default function Home() {
         const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
         toast({
             variant: "destructive",
-            title: "Background Submission Failed",
-            description: `Your details were displayed, but saving to the database failed: ${errorMessage}`,
+            title: "Submission Failed",
+            description: `Saving to the database failed: ${errorMessage}`,
         });
         console.error("Submission Error:", error);
     } finally {
@@ -60,10 +48,12 @@ export default function Home() {
     }
   };
 
-  const handleReset = async () => {
+  // This function now handles signing out the previous user and resetting the UI.
+  const handleGoBack = async () => {
     if (app) {
         const auth = getAuth(app);
         try {
+            // Signing out ensures the next submission gets a new anonymous user ID.
             await signOut(auth);
         } catch (error) {
             console.error("Sign out error:", error);
@@ -74,6 +64,7 @@ export default function Home() {
             });
         }
     }
+    // Setting userData to null navigates back to the form.
     setUserData(null);
   };
 
@@ -86,7 +77,7 @@ export default function Home() {
               CollectIT
             </h1>
             <p className="text-muted-foreground mt-2">
-              {userData ? "" : "Please fill in your details below."}
+              {userData ? "Review the details below." : "Please fill in your details below."}
             </p>
           </div>
           
@@ -94,7 +85,8 @@ export default function Home() {
             !userData ? (
               <DataCollectionForm onSubmit={handleFormSubmit} isSubmitting={isSubmitting} />
             ) : (
-              <UserInfoDisplay userData={userData} onAccept={handleReset} />
+              // The "Go Back" button will now trigger the signOut and reset logic.
+              <UserInfoDisplay userData={userData} onGoBack={handleGoBack} />
             )
           }
         </div>

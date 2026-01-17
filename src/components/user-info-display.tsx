@@ -12,10 +12,10 @@ import { useToast } from "@/hooks/use-toast"
 
 interface UserInfoDisplayProps {
   userData: UserData;
-  onAccept: () => void;
+  onGoBack: () => void;
 }
 
-export function UserInfoDisplay({ userData, onAccept }: UserInfoDisplayProps) {
+export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
   const { toast } = useToast();
   const printRef = useRef<HTMLDivElement>(null);
   const [isAccepted, setIsAccepted] = useState(false);
@@ -135,7 +135,7 @@ export function UserInfoDisplay({ userData, onAccept }: UserInfoDisplayProps) {
       </CardContent>
 
       <CardFooter className="flex flex-col-reverse sm:flex-row items-center justify-between gap-4">
-        <Button variant="outline" onClick={onAccept}><Undo2 className="mr-2 h-4 w-4"/>Go Back</Button>
+        <Button variant="outline" onClick={onGoBack}><Undo2 className="mr-2 h-4 w-4"/>New Entry</Button>
         <div className="flex items-center gap-2">
             <Button variant="outline" onClick={handleDownload} disabled={!isAccepted}><Download className="mr-2 h-4 w-4"/>Download PDF</Button>
             <Button onClick={handleShare} disabled={!isAccepted} className="bg-accent text-accent-foreground hover:bg-accent/90"><Share2 className="mr-2 h-4 w-4"/>Share</Button>
