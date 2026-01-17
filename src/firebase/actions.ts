@@ -10,9 +10,7 @@ import { FirestorePermissionError } from "@/firebase/errors";
 
 async function getAnonymousUser(app: FirebaseApp): Promise<User> {
     const auth = getAuth(app);
-    if (auth.currentUser) {
-        return auth.currentUser;
-    }
+    // Always sign in a new anonymous user for each submission
     const userCredential = await signInAnonymously(auth);
     return userCredential.user;
 }
@@ -33,7 +31,8 @@ export async function submitUserData(app: FirebaseApp, values: FormValues): Prom
             photoURL = await getDownloadURL(storageRef);
         } catch (storageError) {
             console.error("Photo upload failed due to a network or permissions issue:", storageError);
-            // We'll continue to save the rest of the data even if the photo upload fails.
+            // Re-throw the error so the UI can catch it and display a message.
+            throw storageError;
         }
     }
 
@@ -65,6 +64,15 @@ export async function submitUserData(app: FirebaseApp, values: FormValues): Prom
         throw serverError;
     }
     
-    const { photo, ...rest } = values;
-    return { ...rest, photoURL: photoURL, id: user.uid };
+    // Return all data including the final photoURL for the UI
+    return { 
+      name: values.name,
+      phone: values.phone,
+      age: values.age,
+      mandalam: values.mandalam,
+      mekhala: values.mekhala,
+      unit: values.unit,
+      photoURL: photoURL, 
+      id: user.uid 
+    };
 }

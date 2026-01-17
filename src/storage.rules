@@ -1,12 +1,14 @@
 rules_version = '2';
 
-// Define the security rules for the Firebase Storage service
+// Define the security rules for the Firebase Storage service.
+// This ruleset is configured to allow public read access for profile images
+// while restricting write access to the user who owns the photo.
 service firebase.storage {
 
-  // Rules apply to all files within a specified bucket
+  // Rules apply to all files within a specified bucket.
   match /b/{bucket}/o {
 
-    // Specifically match the path for user profile photos
+    // Specifically match the path for user profile photos.
     match /user-photos/{userId}/profile.jpg {
 
       /**
@@ -22,12 +24,5 @@ service firebase.storage {
        */
       allow write: if request.auth != null && request.auth.uid == userId;
     }
-
-    /*
-    // Example of another rule for a different path
-    match /documents/{documentId} {
-      allow read, write: if request.auth != null;
-    }
-    */
   }
 }

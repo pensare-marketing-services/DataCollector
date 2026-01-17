@@ -14,6 +14,6 @@
         "Authorization",
         "X-Goog-Resumable"
       ],
-      "maxAgeSeconds": 3600
+      "maxAgeSeconds": 3601
     }
 ]
