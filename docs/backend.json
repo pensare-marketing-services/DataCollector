@@ -1,27 +1,30 @@
 {
   "entities": {
-    "GatherWiseUser": {
+    "User": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "GatherWiseUser",
+      "title": "User",
       "type": "object",
-      "description": "Represents a user who has submitted data through the GatherWise app.",
+      "description": "Represents a user who has submitted data through the CollectIT app.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the GatherWiseUser entity."
+          "description": "Unique identifier for the User entity, matches Firebase Auth UID."
         },
-        "photo": {
+        "name": {
           "type": "string",
-          "description": "Base64 encoded string of the user's photo."
+          "description": "User's full name."
         },
-        "phoneNumber": {
+        "photoURL": {
+          "type": "string",
+          "description": "URL to the user's uploaded photo in Firebase Storage."
+        },
+        "phone": {
           "type": "string",
           "description": "User's phone number."
         },
         "age": {
           "type": "number",
-          "description": "User's age.",
-          "format": "integer"
+          "description": "User's age."
         },
         "mandalam": {
           "type": "string",
@@ -47,8 +50,8 @@
       },
       "required": [
         "id",
-        "photo",
-        "phoneNumber",
+        "name",
+        "phone",
         "age",
         "mandalam",
         "mekhala",
@@ -60,29 +63,15 @@
   },
   "auth": {
     "providers": [
-      "password",
       "anonymous"
     ]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/gatherwise_users/{gatherwiseUserId}",
-        "definition": {
-          "entityName": "GatherWiseUser",
-          "schema": {
-            "$ref": "#/backend/entities/GatherWiseUser"
-          },
-          "description": "Stores user data collected through the GatherWise app. Includes fields for photo, phone number, age, Mandalam, Mekhala, unit, submission date, and acceptance of the declaration. The document ID is the user's unique ID.",
-          "params": [
-            {
-              "name": "gatherwiseUserId",
-              "description": "The unique identifier for the GatherWiseUser entity."
-            }
-          ]
-        }
-      }
-    ],
-    "reasoning": "The data structure is designed to store user data collected through the GatherWise application.  Given the requirement for filtering data based on name, age, Mandalam, Mekhala, and unit in the future dashboard, all user data will be stored under a single collection called `gatherwise_users`. Authorization Independence is achieved because all data related to a specific user is self-contained within that user's document; there's no reliance on data outside of the document for authorization. This design supports simple list operations with security rules based on user roles (if roles are added in the future; currently, no specific roles are defined, but the structure allows for easy extension). The structure is also designed to support future features such as a dashboard and filtering."
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/User"
+      },
+      "description": "Stores user profile data. The document ID is the user's unique authentication ID."
+    }
   }
 }

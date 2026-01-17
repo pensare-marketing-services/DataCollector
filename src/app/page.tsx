@@ -14,7 +14,7 @@ export default function Home() {
   const app = useFirebaseApp();
   const { toast } = useToast();
 
-  const handleFormSubmit = async (values: FormValues) => {
+  const handleFormSubmit = (values: FormValues) => {
     if (!app) {
       toast({
         variant: "destructive",
@@ -23,37 +23,33 @@ export default function Home() {
       });
       return;
     }
-
+    
     setIsSubmitting(true);
 
-    try {
-      // The submitUserData function now handles the entire DB operation.
-      const submittedData = await submitUserData(app, values);
-      // On success, we set the user data, which triggers navigation to the info page.
-      setUserData(submittedData);
-      toast({
-          title: "Success!",
-          description: "Your data has been saved successfully.",
-      });
-    } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-        toast({
-            variant: "destructive",
-            title: "Submission Failed",
-            description: `Saving to the database failed: ${errorMessage}`,
-        });
-        console.error("Submission Error:", error);
-    } finally {
-        setIsSubmitting(false);
-    }
+    // Optimistically create user data for immediate UI update.
+    // The photoURL will be a temporary local URL.
+    const optimisticUserData: UserData = {
+      ...values,
+      photoURL: values.photo?.[0] ? URL.createObjectURL(values.photo[0]) : '',
+    };
+
+    // Immediately update the UI.
+    setUserData(optimisticUserData);
+    setIsSubmitting(false);
+    toast({
+        title: "Success!",
+        description: "Your data has been submitted and is saving in the background.",
+    });
+
+    // Perform the actual submission in the background.
+    // This function will now handle its own errors and toasts.
+    submitUserData(app, values);
   };
 
-  // This function now handles signing out the previous user and resetting the UI.
   const handleGoBack = async () => {
     if (app) {
         const auth = getAuth(app);
         try {
-            // Signing out ensures the next submission gets a new anonymous user ID.
             await signOut(auth);
         } catch (error) {
             console.error("Sign out error:", error);
@@ -64,7 +60,6 @@ export default function Home() {
             });
         }
     }
-    // Setting userData to null navigates back to the form.
     setUserData(null);
   };
 
@@ -85,7 +80,6 @@ export default function Home() {
             !userData ? (
               <DataCollectionForm onSubmit={handleFormSubmit} isSubmitting={isSubmitting} />
             ) : (
-              // The "Go Back" button will now trigger the signOut and reset logic.
               <UserInfoDisplay userData={userData} onGoBack={handleGoBack} />
             )
           }

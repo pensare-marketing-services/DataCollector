@@ -10,38 +10,20 @@ service cloud.firestore {
      *
      * @Core_Philosophy
      * This ruleset enforces a strict user-ownership model. Each user can
-     * create, read, update, and delete only their own data document. The
-     * primary goal is to ensure user privacy and data integrity by default.
+     * create, read, update, and delete only their own data document.
      *
      * @Data_Structure
-     * The data structure is a single, top-level collection named
-     * 'gatherwise_users'. Each document in this collection represents a
-     * unique user's submitted data, and the document ID is the user's
+     * A top-level collection 'users' where each document ID is a user's
      * authentication UID.
      *
      * @Key_Security_Decisions
-     * - User Data Isolation: Users are strictly confined to their own
-     *   document located at `/gatherwise_users/{request.auth.uid}`.
-     * - Disallowed Listing: To prevent exposing Personally Identifiable
-     *   Information (PII) of all users, listing documents in the
-     *   'gatherwise_users' collection is explicitly disabled for all
-     *   client-side requests. This is a critical privacy measure. A secure
-     *   backend or a future admin role will be required to query the full
-     *   dataset for features like dashboards.
-     * - Anonymous User Submissions: The rules support anonymous authentication
-     *   providers by treating each anonymous user as a distinct identity
-     *   with its own unique UID, capable of managing its own single document.
-     *
-     * @Denormalization_for_Authorization
-     * To ensure a user's identity is permanently linked to their data,
-     * the user's UID is stored both as the document ID and in an 'id' field
-     * within the document itself. Rules enforce that this internal 'id'
-     * field is set correctly on creation and is immutable thereafter. This
-     * prevents any ambiguity or attempts to re-assign document ownership.
-     *
-     * @Structural_Segregation
-     * Not applicable in this model, as all data is considered private to
-     * the user who created it. There is no public/private distinction.
+     * - User Data Isolation: Users are confined to their own document at
+     *   `/users/{request.auth.uid}`.
+     * - Disallowed Listing: Listing all documents in the 'users' collection
+     *   is disabled for clients to protect user privacy.
+     * - Denormalization for Authorization: The user's UID is stored as the
+     *   document ID and in an 'id' field within the document. Rules
+     *   enforce this 'id' is set correctly on creation and is immutable.
      *
      */
 
@@ -49,41 +31,22 @@ service cloud.firestore {
     //                        Helper Functions
     // =====================================================================
 
-    /**
-     * Returns true if the user is signed in.
-     */
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /**
-     * Returns true if the request is from the user who owns the document,
-     * based on the document's ID matching their authentication UID.
-     */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    /**
-     * Returns true if the request is from the owner of an existing document.
-     * Used for safe update and delete operations.
-     */
     function isExistingOwner(userId) {
       return isOwner(userId) && resource != null;
     }
 
-    /**
-     * Validates that the 'id' field within a new document matches the
-     * user's UID, ensuring relational integrity from the start.
-     */
     function hasValidIdOnCreate(userId) {
       return request.resource.data.id == userId;
     }
 
-    /**
-     * Validates that the 'id' field of a document is not being changed
-     * during an update, preventing ownership hijacking.
-     */
     function hasImmutableId() {
       return request.resource.data.id == resource.data.id;
     }
@@ -94,27 +57,16 @@ service cloud.firestore {
 
     /**
      * @description
-     *   Rules for the GatherWise user data collection. A user can create,
+     *   Rules for the main user data collection. A user can create,
      *   read, update, and delete ONLY their own document. Listing all
      *   users is explicitly forbidden to protect user privacy.
-     * @path /gatherwise_users/{gatherwiseUserId}
-     * @allow (create) An authenticated user creating their own profile document.
-     *   `db.collection('gatherwise_users').doc('user_abc').set({ id: 'user_abc', ... })`
-     *   when authenticated as `user_abc`.
-     * @deny (list) Any user, authenticated or not, attempting to list all
-     *   documents in the collection. `db.collection('gatherwise_users').get()`
-     *   will always fail.
-     * @deny (update) A user trying to update another user's document.
-     * @principle
-     *   Restricts access to a user's own data tree and enforces strict
-     *   document ownership for all operations.
      */
-    match /gatherwise_users/{gatherwiseUserId} {
-      allow get: if isOwner(gatherwiseUserId);
-      allow list: if false;
-      allow create: if isOwner(gatherwiseUserId) && hasValidIdOnCreate(gatherwiseUserId);
-      allow update: if isExistingOwner(gatherwiseUserId) && hasImmutableId();
-      allow delete: if isExistingOwner(gatherwiseUserId);
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false; // Crucial privacy protection
+      allow create: if isOwner(userId) && hasValidIdOnCreate(userId);
+      allow update: if isExistingOwner(userId) && hasImmutableId();
+      allow delete: if isExistingOwner(userId);
     }
 
   }
