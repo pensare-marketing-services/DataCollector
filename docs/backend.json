@@ -16,7 +16,7 @@
         },
         "photoURL": {
           "type": "string",
-          "description": "URL to the user's uploaded photo in Firebase Storage."
+          "description": "Base64 encoded data URL of the user's resized photo."
         },
         "phone": {
           "type": "string",

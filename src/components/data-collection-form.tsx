@@ -19,22 +19,9 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  photo: z
-    .custom<FileList>()
-    .optional()
-    .refine(
-        (files) => !files || files.length === 0 || (files?.[0] && files[0].size <= MAX_FILE_SIZE),
-        `Max file size is 5MB.`
-    )
-    .refine(
-        (files) => !files || files.length === 0 || (files?.[0] && ACCEPTED_IMAGE_TYPES.includes(files[0].type)),
-        "Only .jpg, .jpeg, .png and .webp formats are supported."
-    ),
+  photo: z.string().optional(), // Will store the base64 data URL
   phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, { message: "Please enter a valid phone number." }),
   age: z.coerce.number().int().min(1, "Age must be a positive number.").max(120, "Please enter a valid age."),
   mandalam: z.string().min(1, { message: "Mandalam is required." }),
@@ -52,7 +39,7 @@ interface DataCollectionFormProps {
 
 export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFormProps) {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -63,6 +50,7 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
       mandalam: "",
       mekhala: "",
       unit: "",
+      photo: undefined,
     },
   });
 
@@ -98,16 +86,38 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
                           accept="image/*"
                           className="hidden"
                           ref={(e) => {
-                            field.ref(e);
-                            if (fileInputRef) fileInputRef.current = e;
+                            // field.ref(e) // RHF's ref
+                            if(e) fileInputRef.current = e;
                           }}
                           onChange={(e) => {
-                             field.onChange(e.target.files);
-                             if (e.target.files && e.target.files[0]) {
-                              setPhotoPreview(URL.createObjectURL(e.target.files[0]));
-                             } else {
-                              setPhotoPreview(null);
+                             const file = e.target.files?.[0];
+                             if (!file) {
+                               field.onChange(undefined);
+                               setPhotoPreview(null);
+                               return;
                              }
+
+                             const reader = new FileReader();
+                             reader.onload = (event) => {
+                               const img = new Image();
+                               img.onload = () => {
+                                 const canvas = document.createElement('canvas');
+                                 const MAX_WIDTH = 400;
+                                 const scaleSize = MAX_WIDTH / img.width;
+                                 canvas.width = MAX_WIDTH;
+                                 canvas.height = img.height * scaleSize;
+
+                                 const ctx = canvas.getContext('2d');
+                                 ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                                 const dataUrl = canvas.toDataURL(file.type, 0.7); // 0.7 quality
+                                 
+                                 field.onChange(dataUrl);
+                                 setPhotoPreview(dataUrl);
+                               };
+                               img.src = event.target?.result as string;
+                             };
+                             reader.readAsDataURL(file);
                           }}
                         />
                     </FormControl>
