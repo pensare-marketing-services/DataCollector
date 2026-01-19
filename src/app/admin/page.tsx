@@ -97,19 +97,23 @@ export default function AdminDashboard() {
     };
     
     try {
+        // First, copy the link to the clipboard unconditionally.
+        await navigator.clipboard.writeText(shareUrl);
+        toast({ title: 'Link copied to clipboard!' });
+        
+        // Then, if the share API is available, use it.
         if (navigator.share) {
             await navigator.share(shareData);
-            toast({ title: 'Link shared successfully!' });
-        } else {
-            await navigator.clipboard.writeText(shareUrl);
-            toast({ title: 'Link copied to clipboard!' });
         }
     } catch (error) {
-        toast({
-            variant: 'destructive',
-            title: 'Could not share link',
-            description: 'There was an error trying to share the form link.'
-        });
+        // The user closing the share dialog is not an error, so we ignore it.
+        if ((error as Error).name !== 'AbortError') {
+            toast({
+                variant: 'destructive',
+                title: 'Could not share link',
+                description: 'The link was copied, but sharing failed. You can paste it manually.'
+            });
+        }
     }
   };
 
