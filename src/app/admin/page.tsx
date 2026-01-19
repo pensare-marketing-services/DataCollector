@@ -89,9 +89,9 @@ export default function AdminDashboard() {
   };
   
   const handleShareForm = async () => {
-    const shareUrl = `${window.location.origin}/form`;
+    const shareUrl = `https://${window.location.hostname}/form`;
     const shareData = {
-        title: 'CollectIT Data Form',
+        title: 'Data Form',
         text: 'Please fill out the data collection form.',
         url: shareUrl,
     };

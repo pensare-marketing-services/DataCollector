@@ -27,7 +27,7 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
     // --- PDF Title ---
     pdf.setFontSize(22);
     pdf.setFont("helvetica", "bold");
-    pdf.text("CollectIT User Profile", pdfWidth / 2, yPos, { align: "center" });
+    pdf.text("User Profile", pdfWidth / 2, yPos, { align: "center" });
     yPos += 15;
     
     // --- User Image ---
@@ -96,7 +96,7 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
 
   const handleShare = async () => {
     const { name, age, phone, mandalam, mekhala, unit } = userData;
-    const text = `CollectIT User Profile:\n\nName: ${name}\nAge: ${age}\nPhone: ${phone}\nMandalam: ${mandalam}\nMekhala: ${mekhala}\nUnit: ${unit}`;
+    const text = `Collect User Profile:\n\nName: ${name}\nAge: ${age}\nPhone: ${phone}\nMandalam: ${mandalam}\nMekhala: ${mekhala}\nUnit: ${unit}`;
     
     if (navigator.share) {
         try {

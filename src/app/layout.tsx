@@ -5,7 +5,7 @@ import { FirebaseClientProvider } from '@/firebase';
 import { AuthProvider } from '@/context/AuthContext';
 
 export const metadata: Metadata = {
-  title: 'CollectIT',
+  title: 'Collect',
   description: 'A simple app for data collection.',
 };
 

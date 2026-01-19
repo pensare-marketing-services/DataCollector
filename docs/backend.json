@@ -4,7 +4,7 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "User",
       "type": "object",
-      "description": "Represents a user who has submitted data through the CollectIT app.",
+      "description": "Represents a user who has submitted data through the Collect app.",
       "properties": {
         "id": {
           "type": "string",
