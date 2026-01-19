@@ -22,11 +22,11 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased" suppressHydrationWarning={true}>
-        <AuthProvider>
-          <FirebaseClientProvider>
+        <FirebaseClientProvider>
+          <AuthProvider>
             {children}
-          </FirebaseClientProvider>
-        </AuthProvider>
+          </AuthProvider>
+        </FirebaseClientProvider>
         <Toaster />
       </body>
     </html>

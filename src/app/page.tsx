@@ -18,22 +18,22 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    setTimeout(() => { // Simulate network delay
-        if (login(username, password)) {
-            router.push('/admin');
-        } else {
-            toast({
-                variant: 'destructive',
-                title: 'Login Failed',
-                description: 'Invalid username or password.',
-            });
-            setIsLoading(false);
-        }
-    }, 500);
+    const success = await login(username, password);
+
+    if (success) {
+        router.push('/admin');
+    } else {
+        toast({
+            variant: 'destructive',
+            title: 'Login Failed',
+            description: 'Invalid credentials or backend connection error.',
+        });
+        setIsLoading(false);
+    }
   };
 
   return (
