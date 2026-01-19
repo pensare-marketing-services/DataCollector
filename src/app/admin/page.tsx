@@ -82,8 +82,8 @@ export default function AdminDashboard() {
     doc.text('User Data', 14, 16);
     
     (doc as any).autoTable({
-      head: [['Name', 'Phone', 'Age', 'Mandalam', 'Mekhala', 'Unit']],
-      body: filteredUsers.map(u => [u.name, u.phone, u.age, u.mandalam, u.mekhala, u.unit]),
+      head: [['Sl.No.', 'Name', 'Phone', 'Age', 'Mandalam', 'Mekhala', 'Unit']],
+      body: filteredUsers.map((u, index) => [index + 1, u.name, u.phone, u.age, u.mandalam, u.mekhala, u.unit]),
       startY: 20,
     });
 
@@ -173,6 +173,7 @@ export default function AdminDashboard() {
                 <Table>
                     <TableHeader>
                         <TableRow>
+                            <TableHead>Sl.No.</TableHead>
                             <TableHead>Name</TableHead>
                             <TableHead>Phone</TableHead>
                             <TableHead>Age</TableHead>
@@ -184,15 +185,16 @@ export default function AdminDashboard() {
                     <TableBody>
                         {isLoading ? (
                              <TableRow>
-                                <TableCell colSpan={6} className="text-center">
+                                <TableCell colSpan={7} className="text-center">
                                     <div className="flex justify-center items-center p-8">
                                         <Loader2 className="h-6 w-6 animate-spin" />
                                     </div>
                                 </TableCell>
                             </TableRow>
                         ) : filteredUsers.length > 0 ? (
-                            filteredUsers.map((user) => (
+                            filteredUsers.map((user, index) => (
                                 <TableRow key={user.id}>
+                                    <TableCell>{index + 1}</TableCell>
                                     <TableCell className="font-medium capitalize">{user.name}</TableCell>
                                     <TableCell>{user.phone}</TableCell>
                                     <TableCell>{user.age}</TableCell>
@@ -203,7 +205,7 @@ export default function AdminDashboard() {
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={6} className="text-center h-24">
+                                <TableCell colSpan={7} className="text-center h-24">
                                     No users found matching your filters.
                                 </TableCell>
                             </TableRow>
