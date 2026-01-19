@@ -32,6 +32,9 @@ export default function FormPage() {
         title: "Success!",
         description: "Your data has been submitted successfully.",
       });
+      
+      const auth = getAuth(app);
+      await signOut(auth);
     } catch (error) {
       console.error("Submission Failed:", error);
       toast({
@@ -44,20 +47,7 @@ export default function FormPage() {
     }
   };
 
-  const handleGoBack = async () => {
-    if (app) {
-        const auth = getAuth(app);
-        try {
-            await signOut(auth);
-        } catch (error) {
-            console.error("Sign out error:", error);
-            toast({
-                variant: "destructive",
-                title: "Failed to start new session",
-                description: "Could not sign out the previous user. Please refresh the page.",
-            });
-        }
-    }
+  const handleGoBack = () => {
     setUserData(null);
   };
 
