@@ -67,9 +67,7 @@ export default function FormPage() {
                 className="mb-4"
                 priority
             />
-            <p className="text-muted-foreground mt-2">
-              {userData ? "Review the details below." : "Please fill in your details below."}
-            </p>
+
           </div>
           
           {
