@@ -67,7 +67,7 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
                 <FormItem>
                   <FormLabel>Full Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="John Doe" {...field} />
+                    <Input placeholder="John Doe" {...field} className="capitalize" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -109,7 +109,7 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
                     <FormItem>
                     <FormLabel>Mandalam</FormLabel>
                     <FormControl>
-                        <Input placeholder="Mandalam" {...field} />
+                        <Input placeholder="Mandalam" {...field} className="capitalize" />
                     </FormControl>
                     <FormMessage />
                     </FormItem>
@@ -122,7 +122,7 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
                     <FormItem>
                     <FormLabel>Mekhala</FormLabel>
                     <FormControl>
-                        <Input placeholder="Mekhala" {...field} />
+                        <Input placeholder="Mekhala" {...field} className="capitalize" />
                     </FormControl>
                     <FormMessage />
                     </FormItem>
@@ -135,7 +135,7 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
                     <FormItem>
                     <FormLabel>Unit</FormLabel>
                     <FormControl>
-                        <Input placeholder="Unit" {...field} />
+                        <Input placeholder="Unit" {...field} className="capitalize" />
                     </FormControl>
                     <FormMessage />
                     </FormItem>
