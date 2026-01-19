@@ -59,7 +59,7 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
     <Card className="w-full bg-transparent border-0 shadow-none">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent className="space-y-6 pt-6">
+          <CardContent className="space-y-4 pt-2">
             <FormField
               control={form.control}
               name="name"
@@ -73,7 +73,7 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
                 </FormItem>
               )}
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
               <FormField
                 control={form.control}
                 name="phone"
@@ -101,7 +101,7 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
                 )}
               />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
                 <FormField
                 control={form.control}
                 name="mandalam"
