@@ -4,7 +4,6 @@
 import { Download, Share2, Undo2 } from "lucide-react"
 import jsPDF from "jspdf";
 import type { UserData } from "./data-collection-form"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
@@ -20,44 +19,86 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
   const handleDownload = async () => {
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
     const margin = 15;
-    let yPos = margin;
+    let yPos = 0; // Start at the top
 
-    const memberId = `AIYF/2026/16${Math.floor(Math.random() * 900) + 100}`;
-    const submissionDate = new Date(userData.submissionDate).toLocaleDateString('en-GB'); // dd/mm/yyyy
+    // --- 1. Header Image ---
+    try {
+        const headerImg = new Image();
+        headerImg.src = '/header.jpg'; // Assumes header.jpg is in the public folder
+        await new Promise((resolve, reject) => {
+            headerImg.onload = resolve;
+            headerImg.onerror = (err) => {
+                console.error("PDF Header Image Error: Could not load /header.jpg.", err);
+                // Resolve to continue without the image, preventing PDF generation from failing
+                resolve(null); 
+            };
+        });
 
-    // --- User Image ---
-    if (userData.photoURL) {
-        try {
-            const img = new Image();
-            img.src = userData.photoURL;
-            await new Promise((resolve, reject) => {
-                img.onload = resolve;
-                img.onerror = reject;
-            });
+        if (headerImg.width > 0) {
+            const imgProps = pdf.getImageProperties(headerImg);
+            // Calculate height to maintain aspect ratio, constrained to full width
+            const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            // Limit header to a max of 20% of the page height
+            const finalImageHeight = Math.min(imgHeight, pdfHeight * 0.2); 
             
-            const imgSize = 30; // 30mm x 30mm
-            const xPosImg = pdfWidth - margin - imgSize;
-            pdf.addImage(userData.photoURL, 'PNG', xPosImg, yPos, imgSize, imgSize);
-        } catch (e) {
-            console.error("Could not add image to PDF", e);
+            pdf.addImage(headerImg, 'PNG', 0, 0, pdfWidth, finalImageHeight);
+            yPos = finalImageHeight; // Set current Y position to the bottom of the header
         }
+    } catch (e) {
+        console.error("An error occurred while adding the header image to the PDF.", e);
+        toast({
+            variant: "destructive",
+            title: "PDF Error",
+            description: "Could not add header image to the PDF.",
+        });
     }
     
-    // --- Member Details ---
+    // Add some space after the header
+    yPos += 10;
+
+    // --- 2. Member Info & User Photo ---
+    const topContentY = yPos;
+    const memberId = `AIYF/2026/16${Math.floor(Math.random() * 900) + 100}`;
+    const submissionDate = new Date(userData.submissionDate).toLocaleDateString('en-GB');
+
+    // Add Member Details
     pdf.setFontSize(10);
     pdf.setFont("helvetica", "normal");
-    
-    pdf.text(`Member ID: ${memberId}`, margin, yPos + 5);
-    pdf.text(`Date: ${submissionDate}`, margin, yPos + 10);
-    
-    yPos += 35; // space below image and header details
+    pdf.text(`Member ID: ${memberId}`, margin, topContentY + 5);
+    pdf.text(`Date: ${submissionDate}`, margin, topContentY + 10);
 
-    pdf.setDrawColor(200); // light grey line
+    let topSectionHeight = 15; // Minimum height for the text block
+
+    // Add User Photo
+    if (userData.photoURL) {
+        try {
+            const userImg = new Image();
+            userImg.src = userData.photoURL;
+            await new Promise((resolve, reject) => {
+                userImg.onload = resolve;
+                userImg.onerror = reject;
+            });
+            
+            const imgSize = 30; // 30mm x 30mm square
+            const xPosImg = pdfWidth - margin - imgSize;
+            pdf.addImage(userImg, 'PNG', xPosImg, topContentY, imgSize, imgSize);
+            // The section's total height is the larger of the text block or the user photo
+            topSectionHeight = Math.max(topSectionHeight, imgSize); 
+        } catch (e) {
+            console.error("Could not add user photo to PDF", e);
+        }
+    }
+
+    yPos = topContentY + topSectionHeight + 5; // Add space below this section
+
+    // --- 3. Separator Line ---
+    pdf.setDrawColor(200); // light grey
     pdf.line(margin, yPos, pdfWidth - margin, yPos);
     yPos += 10;
-    
-    // --- User Details ---
+
+    // --- 4. User Details ---
     pdf.setFontSize(12);
     const col1X = margin;
     const col2X = margin + 50; 
@@ -72,7 +113,7 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
     ];
     
     details.forEach(detail => {
-        if (yPos > pdf.internal.pageSize.getHeight() - margin) {
+        if (yPos > pdfHeight - margin) { // Check for page break
             pdf.addPage();
             yPos = margin;
         }
@@ -83,7 +124,7 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
         yPos += 10;
     });
 
-    // --- Save PDF ---
+    // --- 5. Save PDF ---
     pdf.save(`${userData.name.replace(/\s+/g, '_').toLowerCase()}_profile.pdf`);
 
     toast({
@@ -127,18 +168,21 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
   };
 
   return (
-    <Card className="w-full bg-transparent border-0 shadow-none">
-      <CardHeader>
-        <CardTitle className="font-malayalam text-center text-sm font-normal">പ്രിയ സുഹൃത്തേ, അഖിലേന്ത്യാ യൂത്ത് ഫെഡറേഷൻ (AIYF) അംഗത്വ ക്യാമ്പയിന്റെ ഭാഗമായതിന് നന്ദി. ജനാധിപത്യത്തിൻ്റെയും മതേതരത്വത്തിൻ്റെയും കാവലാളാകാനുള്ള താങ്കളുടെ ഈ തീരുമാനം അഭിനന്ദനാർഹമാണ്. താങ്കളുടെ അംഗത്വ അപേക്ഷ വിജയകരമായി പൂർത്തിയായിരിക്കുന്നു.</CardTitle>
-      </CardHeader>
-      
-      <CardFooter className="flex flex-col-reverse sm:flex-row items-center justify-between gap-4">
-        <Button variant="outline" onClick={onGoBack}><Undo2 className="mr-2 h-4 w-4"/>New Entry</Button>
-        <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={handleDownload}><Download className="mr-2 h-4 w-4"/>Download PDF</Button>
-            <Button onClick={handleShare} className="bg-accent text-accent-foreground hover:bg-accent/90"><Share2 className="mr-2 h-4 w-4"/>Share</Button>
-        </div>
-      </CardFooter>
-    </Card>
+    <>
+      <h1 className="font-malayalam text-xl font-bold text-center p-4">ഒരുമിച്ച് പോരാടാം, നല്ലൊരു നാളേക്കായ്!</h1>
+      <Card className="w-full bg-transparent border-0 shadow-none">
+        <CardHeader>
+          <CardTitle className="font-malayalam text-center text-sm font-normal">പ്രിയ സുഹൃത്തേ, അഖിലേന്ത്യാ യൂത്ത് ഫെഡറേഷൻ (AIYF) അംഗത്വ ക്യാമ്പയിന്റെ ഭാഗമായതിന് നന്ദി. ജനാധിപത്യത്തിൻ്റെയും മതേതരത്വത്തിൻ്റെയും കാവലാളാകാനുള്ള താങ്കളുടെ ഈ തീരുമാനം അഭിനന്ദനാർഹമാണ്. താങ്കളുടെ അംഗത്വ അപേക്ഷ വിജയകരമായി പൂർത്തിയായിരിക്കുന്നു.</CardTitle>
+        </CardHeader>
+        
+        <CardFooter className="flex flex-col-reverse sm:flex-row items-center justify-between gap-4">
+          <Button variant="outline" onClick={onGoBack}><Undo2 className="mr-2 h-4 w-4"/>New Entry</Button>
+          <div className="flex items-center gap-2">
+              <Button variant="outline" onClick={handleDownload}><Download className="mr-2 h-4 w-4"/>Download PDF</Button>
+              <Button onClick={handleShare} className="bg-accent text-accent-foreground hover:bg-accent/90"><Share2 className="mr-2 h-4 w-4"/>Share</Button>
+          </div>
+        </CardFooter>
+      </Card>
+    </>
   )
 }

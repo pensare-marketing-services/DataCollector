@@ -54,7 +54,7 @@ export default function FormPage() {
     <div className="min-h-screen bg-background">
         <main className="container mx-auto flex flex-col items-center justify-center p-4 min-h-screen">
             <div className="w-full max-w-2xl">
-              {userData && <h1 className="font-malayalam text-xl font-bold text-center p-4">ഒരുമിച്ച് പോരാടാം, നല്ലൊരു നാളേക്കായ്!</h1>}
+              {userData && <h1 className="font-malayalam text-xl font-bold text-center p-4">ഒരുമിച്ച് പോരാടാം,<br/> നല്ലൊരു നാളേക്കായ്!</h1>}
               <div className="border rounded-lg overflow-hidden relative bg-card shadow-sm">
                   <div className="relative">
                       {
