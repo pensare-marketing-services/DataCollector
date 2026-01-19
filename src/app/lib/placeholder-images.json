@@ -1,0 +1,9 @@
+{
+  "logo": {
+    "src": "/logo-placeholder.svg",
+    "width": 180,
+    "height": 40,
+    "alt": "Collect Logo",
+    "data-ai-hint": "logo simple"
+  }
+}

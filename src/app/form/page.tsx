@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { getAuth, signOut } from "firebase/auth";
 import { DataCollectionForm, type UserData, type FormValues } from '@/components/data-collection-form';
 import { UserInfoDisplay } from '@/components/user-info-display';
 import { useFirebaseApp } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { submitUserData } from '@/firebase/actions';
+import placeholderImages from '@/lib/placeholder-images.json';
 
 export default function FormPage() {
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -55,10 +57,16 @@ export default function FormPage() {
     <div className="flex min-h-screen w-full items-center justify-center bg-background dark:bg-black">
       <main className="container mx-auto flex flex-col items-center justify-center p-4">
         <div className="w-full max-w-2xl">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary">
-              Collect
-            </h1>
+          <div className="text-center mb-8 flex flex-col items-center">
+            <Image
+                src={placeholderImages.logo.src}
+                width={placeholderImages.logo.width}
+                height={placeholderImages.logo.height}
+                alt={placeholderImages.logo.alt}
+                data-ai-hint={placeholderImages.logo['data-ai-hint']}
+                className="mb-4"
+                priority
+            />
             <p className="text-muted-foreground mt-2">
               {userData ? "Review the details below." : "Please fill in your details below."}
             </p>
