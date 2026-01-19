@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useRef, useState } from "react"
@@ -19,7 +20,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Combobox } from "@/components/ui/combobox"
-import { mandalams, mekhalas, units } from "@/app/lib/locations"
+import { mandalams } from "@/app/lib/locations"
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -108,7 +109,7 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
                 control={form.control}
                 name="mandalam"
                 render={({ field }) => (
-                    <FormItem className="flex flex-col">
+                    <FormItem>
                       <FormLabel>Mandalam</FormLabel>
                       <FormControl>
                           <Combobox
@@ -129,18 +130,10 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
                 control={form.control}
                 name="mekhala"
                 render={({ field }) => (
-                    <FormItem className="flex flex-col">
+                    <FormItem>
                       <FormLabel>Mekhala</FormLabel>
                       <FormControl>
-                          <Combobox
-                              options={mekhalas}
-                              {...field}
-                              placeholder="Select Mekhala..."
-                              searchPlaceholder="Search mekhala..."
-                              emptyText="No mekhala found."
-                              onChange={field.onChange}
-                              value={field.value}
-                          />
+                        <Input placeholder="e.g. Chevayur" {...field} className="capitalize" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -150,18 +143,10 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
                 control={form.control}
                 name="unit"
                 render={({ field }) => (
-                    <FormItem className="flex flex-col">
+                    <FormItem>
                       <FormLabel>Unit</FormLabel>
                       <FormControl>
-                          <Combobox
-                              options={units}
-                              {...field}
-                              placeholder="Select Unit..."
-                              searchPlaceholder="Search unit..."
-                              emptyText="No unit found."
-                              onChange={field.onChange}
-                              value={field.value}
-                          />
+                        <Input placeholder="e.g. Medical College" {...field} className="capitalize" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

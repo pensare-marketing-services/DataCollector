@@ -1,13 +1,21 @@
-export const mandalams = [
-  { value: "kozhikode", label: "Kozhikode" },
-  { value: "koyilandy", label: "Koyilandy" },
-  { value: "vatakara", label: "Vatakara" },
-  { value: "thamarassery", label: "Thamarassery" },
-  { value: "balussery", label: "Balussery" },
-  { value: "kunnamangalam", label: "Kunnamangalam"},
-  { value: "feroke", label: "Feroke"}
-];
 
+export const mandalams = [
+  { value: "koduvally", label: "Koduvally" },
+  { value: "thamarassery", label: "Thamarassery" },
+  { value: "meppayyur", label: "Meppayyur" },
+  { value: "kakkodi", label: "Kakkodi" },
+  { value: "kozhikode_city", label: "Kozhikode City" },
+  { value: "balussery", label: "Balussery" },
+  { value: "thiruvambady", label: "Thiruvambady" },
+  { value: "kunnamangalam", label: "Kunnamangalam" },
+  { value: "kuttiady", label: "Kuttiady" },
+  { value: "nadapuram", label: "Nadapuram" },
+  { value: "beypore", label: "Beypore" },
+  { value: "ayancheri", label: "Ayancheri" },
+  { value: "vatakara", label: "Vatakara" },
+  { value: "perambra", label: "Perambra" },
+  { value: "koyilandi", label: "Koyilandi" }
+];
 export const mekhalas = [
   { value: "beypore", label: "Beypore" },
   { value: "chevayur", label: "Chevayur" },

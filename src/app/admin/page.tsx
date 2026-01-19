@@ -15,7 +15,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import placeholderImages from '@/app/lib/placeholder-images.json';
 import { Combobox } from '@/components/ui/combobox';
-import { mandalams, mekhalas, units } from '@/app/lib/locations';
+import { mandalams } from '@/app/lib/locations';
 
 // Define the shape of a user document
 interface UserDoc {
@@ -157,26 +157,12 @@ export default function AdminDashboard() {
                     options={mandalams}
                     value={mandalamFilter}
                     onChange={setMandalamFilter}
-                    placeholder="Filter by Mandalam..."
+                    placeholder="Mandalam..."
                     searchPlaceholder="Search mandalam..."
                     emptyText="No mandalam found."
                 />
-                <Combobox
-                    options={mekhalas}
-                    value={mekhalaFilter}
-                    onChange={setMekhalaFilter}
-                    placeholder="Filter by Mekhala..."
-                    searchPlaceholder="Search mekhala..."
-                    emptyText="No mekhala found."
-                />
-                <Combobox
-                    options={units}
-                    value={unitFilter}
-                    onChange={setUnitFilter}
-                    placeholder="Filter by Unit..."
-                    searchPlaceholder="Search unit..."
-                    emptyText="No unit found."
-                />
+                <Input placeholder="Filter by mekhala..." value={mekhalaFilter} onChange={e => setMekhalaFilter(e.target.value)} />
+                <Input placeholder="Filter by unit..." value={unitFilter} onChange={e => setUnitFilter(e.target.value)} />
                 <div className="flex items-center gap-2 lg:col-span-2">
                     <Input type="number" placeholder="Min Age" value={minAgeFilter} onChange={e => setMinAgeFilter(e.target.value)} />
                     <span className="text-muted-foreground">-</span>
@@ -186,12 +172,7 @@ export default function AdminDashboard() {
         )}
         
         <div className="border rounded-lg overflow-hidden relative">
-            {/* <div
-                className="absolute inset-0 bg-contain bg-no-repeat bg-center opacity-10 pointer-events-none"
-                style={{
-                    backgroundImage: `url(${placeholderImages.logo.src})`,
-                }}
-            /> */}
+      
             <div className="relative overflow-x-auto">
                 <Table>
                     <TableHeader>
