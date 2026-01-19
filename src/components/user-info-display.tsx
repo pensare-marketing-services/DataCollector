@@ -16,7 +16,7 @@ interface UserInfoDisplayProps {
 export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
   const { toast } = useToast();
 
-  const handleDownload = async () => {
+  const generatePdfDocument = async (): Promise<jsPDF> => {
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
@@ -49,11 +49,7 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
         }
     } catch (e) {
         console.error("An error occurred while adding the header image to the PDF.", e);
-        toast({
-            variant: "destructive",
-            title: "PDF Error",
-            description: "Could not add header image to the PDF.",
-        });
+        // This error is handled gracefully, so we let the PDF generation continue.
     }
     
     // Add some space after the header
@@ -124,45 +120,63 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
         yPos += 10;
     });
 
-    // --- 5. Save PDF ---
-    pdf.save(`${userData.name.replace(/\s+/g, '_').toLowerCase()}_aiyf_profile.pdf`);
+    return pdf;
+  };
 
-    toast({
-      title: "Download Started",
-      description: "Your profile is being downloaded as a PDF file.",
-    });
+  const handleDownload = async () => {
+    try {
+      const pdf = await generatePdfDocument();
+      pdf.save(`${userData.name.replace(/\s+/g, '_').toLowerCase()}_aiyf_profile.pdf`);
+
+      toast({
+        title: "Download Started",
+        description: "Your profile is being downloaded as a PDF file.",
+      });
+    } catch (e) {
+        console.error("PDF Download Error:", e);
+        toast({
+            variant: "destructive",
+            title: "Download Failed",
+            description: "Could not generate the PDF for download.",
+        });
+    }
   };
 
   const handleShare = async () => {
-    const { name, age, phone, mandalam, mekhala, unit } = userData;
-    const text = `Collect User Profile:\n\nName: ${name}\nAge: ${age}\nPhone: ${phone}\nMandalam: ${mandalam}\nMekhala: ${mekhala}\nUnit: ${unit}`;
-    
-    if (navigator.share) {
-        try {
-            await navigator.share({ title: 'User Profile', text });
-            toast({ title: "Shared Successfully" });
-        } catch (error) {
-            if ((error as Error).name !== 'AbortError') {
-              toast({
-                title: "Sharing failed",
-                description: "Could not share the information. Permission may have been denied.",
-                variant: "destructive",
-              });
-            }
+    try {
+        const pdf = await generatePdfDocument();
+        const pdfBlob = pdf.output('blob');
+        const fileName = `${userData.name.replace(/\s+/g, '_').toLowerCase()}_aiyf_profile.pdf`;
+        const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
+        const shareData = {
+            files: [pdfFile],
+            title: `${userData.name}'s AIYF Profile`,
+            text: `AIYF Profile for ${userData.name}`,
+        };
+        
+        // Check if sharing is supported and if the file can be shared
+        if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+            await navigator.share(shareData);
+            // No toast on success, as the share sheet provides its own feedback.
+        } else {
+            // If sharing files is not supported, fallback to downloading the PDF.
+            toast({
+              title: "File sharing not supported",
+              description: "Your browser doesn't support sharing files. The PDF will be downloaded instead.",
+            });
+            pdf.save(fileName);
         }
-    } else {
-        try {
-            await navigator.clipboard.writeText(text);
-            toast({
-              title: "Copied to Clipboard",
-              description: "Web sharing is not available, so the details have been copied to your clipboard.",
-            });
-        } catch (err) {
-            toast({
-              title: "Failed to Copy",
-              description: "Could not copy details to clipboard.",
-              variant: "destructive",
-            });
+
+    } catch (error) {
+        // Ignore AbortError which happens when the user closes the share dialog
+        if ((error as Error).name !== 'AbortError') {
+          console.error("PDF Share Error:", error);
+          toast({
+            variant: "destructive",
+            title: "Share Failed",
+            description: "An error occurred while trying to share the PDF.",
+          });
         }
     }
   };
