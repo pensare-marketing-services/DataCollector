@@ -66,7 +66,10 @@ export default function FormPage() {
                   <div className="relative">
                       {
                           !userData ? (
-                          <DataCollectionForm onSubmit={handleFormSubmit} isSubmitting={isSubmitting} />
+                            <>
+                              <h2 className="text-2xl font-bold text-center pt-6">Please fill the form</h2>
+                              <DataCollectionForm onSubmit={handleFormSubmit} isSubmitting={isSubmitting} />
+                            </>
                           ) : (
                           <UserInfoDisplay userData={userData} onGoBack={handleGoBack} />
                           )

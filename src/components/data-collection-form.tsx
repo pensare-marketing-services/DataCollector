@@ -53,6 +53,7 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
       photo: undefined,
     },
   });
+  
 
   return (
     <Card className="w-full bg-transparent border-0 shadow-none">
