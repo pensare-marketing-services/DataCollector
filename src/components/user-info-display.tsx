@@ -145,7 +145,10 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
 
   return (
     <Card className="w-full bg-transparent border-0 shadow-none">
-      <div className="p-6">
+      <CardHeader>
+        <CardTitle className="text-center text-2xl font-bold">Member Slip</CardTitle>
+      </CardHeader>
+      <div className="p-6 pt-0">
         <div className="flex flex-row items-center gap-6">
           <Avatar className="h-28 w-28 border-4 border-secondary">
             <AvatarImage src={userData.photoURL} alt={userData.name} />

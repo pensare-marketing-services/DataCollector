@@ -16,18 +16,19 @@ export const mandalams = [
   { value: "perambra", label: "Perambra" },
   { value: "koyilandi", label: "Koyilandi" }
 ];
-export const mekhalas = [
-  { value: "beypore", label: "Beypore" },
-  { value: "chevayur", label: "Chevayur" },
-  { value: "elathur", label: "Elathur" },
-  { value: "kakkodi", label: "Kakkodi" },
-  { value: "mavoor", label: "Mavoor" },
-];
 
-export const units = [
-  { value: "medical_college", label: "Medical College" },
-  { value: "nadakkavu", label: "Nadakkavu" },
-  { value: "paroppady", label: "Paroppady" },
-  { value: "puthiyangadi", label: "Puthiyangadi" },
-  { value: "west_hill", label: "West Hill" },
-];
+// export const mekhalas = [
+//   { value: "beypore", label: "Beypore" },
+//   { value: "chevayur", label: "Chevayur" },
+//   { value: "elathur", label: "Elathur" },
+//   { value: "kakkodi", label: "Kakkodi" },
+//   { value: "mavoor", label: "Mavoor" },
+// ];
+
+// export const units = [
+//   { value: "medical_college", label: "Medical College" },
+//   { value: "nadakkavu", label: "Nadakkavu" },
+//   { value: "paroppady", label: "Paroppady" },
+//   { value: "puthiyangadi", label: "Puthiyangadi" },
+//   { value: "west_hill", label: "West Hill" },
+// ];
