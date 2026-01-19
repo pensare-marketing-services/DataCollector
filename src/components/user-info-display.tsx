@@ -23,12 +23,9 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
     const margin = 15;
     let yPos = margin;
 
-    // --- PDF Title ---
-    pdf.setFontSize(22);
-    pdf.setFont("helvetica", "bold");
-    pdf.text("AIYF", pdfWidth / 2, yPos, { align: "center" });
-    yPos += 15;
-    
+    const memberId = `AIYF/2026/16${Math.floor(Math.random() * 900) + 100}`;
+    const submissionDate = new Date(userData.submissionDate).toLocaleDateString('en-GB'); // dd/mm/yyyy
+
     // --- User Image ---
     if (userData.photoURL) {
         try {
@@ -39,37 +36,34 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
                 img.onerror = reject;
             });
             
-            const maxImgWidth = 60;
-            const maxImgHeight = 60;
-            
-            const ratio = Math.min(maxImgWidth / img.width, maxImgHeight / img.height);
-            const imgWidth = img.width * ratio;
-            const imgHeight = img.height * ratio;
-
-            const xPosImg = (pdfWidth - imgWidth) / 2; // Center the image
-            pdf.addImage(userData.photoURL, 'PNG', xPosImg, yPos, imgWidth, imgHeight);
-            yPos += imgHeight + 15;
+            const imgSize = 30; // 30mm x 30mm
+            const xPosImg = pdfWidth - margin - imgSize;
+            pdf.addImage(userData.photoURL, 'PNG', xPosImg, yPos, imgSize, imgSize);
         } catch (e) {
             console.error("Could not add image to PDF", e);
-            toast({
-              title: "PDF Generation Error",
-              description: "The user photo could not be added to the PDF.",
-              variant: "destructive"
-            });
         }
     }
     
-    // --- User Details ---
-    pdf.setFontSize(16);
-    pdf.setFont("helvetica", "bold");
-    pdf.text(userData.name, pdfWidth / 2, yPos, { align: "center" });
-    yPos += 15;
+    // --- Member Details ---
+    pdf.setFontSize(10);
+    pdf.setFont("helvetica", "normal");
+    
+    pdf.text(`Member ID: ${memberId}`, margin, yPos + 5);
+    pdf.text(`Date: ${submissionDate}`, margin, yPos + 10);
+    
+    yPos += 35; // space below image and header details
 
+    pdf.setDrawColor(200); // light grey line
+    pdf.line(margin, yPos, pdfWidth - margin, yPos);
+    yPos += 10;
+    
+    // --- User Details ---
     pdf.setFontSize(12);
     const col1X = margin;
-    const col2X = margin + 50;
+    const col2X = margin + 50; 
     
     const details = [
+        { label: "Name", value: userData.name },
         { label: "Age", value: userData.age.toString() },
         { label: "Phone Number", value: userData.phone },
         { label: "Mandalam", value: userData.mandalam },
@@ -134,35 +128,10 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
 
   return (
     <Card className="w-full bg-transparent border-0 shadow-none">
-      <CardHeader className="pt-6">
+      <CardHeader>
         <CardTitle className="font-malayalam text-center text-sm font-normal">പ്രിയ സുഹൃത്തേ, അഖിലേന്ത്യാ യൂത്ത് ഫെഡറേഷൻ (AIYF) അംഗത്വ ക്യാമ്പയിന്റെ ഭാഗമായതിന് നന്ദി. ജനാധിപത്യത്തിൻ്റെയും മതേതരത്വത്തിൻ്റെയും കാവലാളാകാനുള്ള താങ്കളുടെ ഈ തീരുമാനം അഭിനന്ദനാർഹമാണ്. താങ്കളുടെ അംഗത്വ അപേക്ഷ വിജയകരമായി പൂർത്തിയായിരിക്കുന്നു.</CardTitle>
       </CardHeader>
       
-      <CardContent className="pt-0">
-        <div className="border rounded-lg p-4 mt-6 text-center">
-            <Avatar className="h-28 w-28 border-4 border-secondary mx-auto mb-4">
-                <AvatarImage src={userData.photoURL} alt={userData.name} />
-                <AvatarFallback className="text-4xl">{userData.name.charAt(0)}</AvatarFallback>
-            </Avatar>
-            <h2 className="text-2xl font-bold capitalize">{userData.name}</h2>
-            <p className="text-muted-foreground">Age: {userData.age} | Phone: {userData.phone}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center sm:text-left mt-4">
-                <div className="sm:text-center">
-                    <p className="text-sm text-muted-foreground">Mandalam</p>
-                    <p className="font-semibold capitalize">{userData.mandalam}</p>
-                </div>
-                <div className="sm:text-center">
-                    <p className="text-sm text-muted-foreground">Mekhala</p>
-                    <p className="font-semibold capitalize">{userData.mekhala}</p>
-                </div>
-                <div className="sm:text-center">
-                    <p className="text-sm text-muted-foreground">Unit</p>
-                    <p className="font-semibold capitalize">{userData.unit}</p>
-                </div>
-            </div>
-        </div>
-      </CardContent>
-
       <CardFooter className="flex flex-col-reverse sm:flex-row items-center justify-between gap-4">
         <Button variant="outline" onClick={onGoBack}><Undo2 className="mr-2 h-4 w-4"/>New Entry</Button>
         <div className="flex items-center gap-2">

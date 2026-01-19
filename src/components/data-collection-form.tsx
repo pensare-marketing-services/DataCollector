@@ -38,7 +38,7 @@ const formSchema = z.object({
 });
 
 export type FormValues = z.infer<typeof formSchema>;
-export type UserData = Omit<FormValues, 'photo' | 'acceptedDeclaration'> & { photoURL: string; id?: string };
+export type UserData = Omit<FormValues, 'photo' | 'acceptedDeclaration'> & { photoURL: string; id?: string; submissionDate: string; };
 
 interface DataCollectionFormProps {
   onSubmit: (data: FormValues) => void;

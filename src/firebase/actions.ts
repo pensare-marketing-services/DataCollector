@@ -56,6 +56,7 @@ export async function submitUserData(app: FirebaseApp, values: FormValues): Prom
     mekhala: values.mekhala,
     unit: values.unit,
     photoURL,
+    submissionDate: dataToSave.submissionDate,
   };
 
   return result;
