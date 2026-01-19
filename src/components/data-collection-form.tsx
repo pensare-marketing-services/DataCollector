@@ -29,9 +29,9 @@ const formSchema = z.object({
   photo: z.string().optional(), // Will store the base64 data URL
   phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, { message: "Please enter a valid phone number." }),
   age: z.coerce.number().int().min(1, "Age must be a positive number.").max(120, "Please enter a valid age."),
-  mandalam: z.string().min(1, { message: "Mandalam is required." }),
-  mekhala: z.string().min(1, { message: "Mekhala is required." }),
-  unit: z.string().min(1, { message: "Unit is required." }),
+  mandalam: z.string(),
+  mekhala: z.string(),
+  unit: z.string(),
   acceptedDeclaration: z.boolean().default(false).refine(val => val === true, {
     message: "You must accept the declaration to submit.",
   }),

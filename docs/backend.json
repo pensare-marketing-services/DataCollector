@@ -59,9 +59,6 @@
         "name",
         "phone",
         "age",
-        "mandalam",
-        "mekhala",
-        "unit",
         "submissionDate",
         "acceptedDeclaration"
       ]

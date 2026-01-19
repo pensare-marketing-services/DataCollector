@@ -125,7 +125,7 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
     });
 
     // --- 5. Save PDF ---
-    pdf.save(`${userData.name.replace(/\s+/g, '_').toLowerCase()}_profile.pdf`);
+    pdf.save(`${userData.name.replace(/\s+/g, '_').toLowerCase()}_aiyf_profile.pdf`);
 
     toast({
       title: "Download Started",
