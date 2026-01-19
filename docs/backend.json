@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "User": {
@@ -9,6 +10,10 @@
         "id": {
           "type": "string",
           "description": "Unique identifier for the User entity, matches Firebase Auth UID."
+        },
+        "memberId": {
+          "type": "string",
+          "description": "Sequentially generated unique identifier for the member, e.g., AIYF/2026/15001."
         },
         "name": {
           "type": "string",
@@ -50,6 +55,7 @@
       },
       "required": [
         "id",
+        "memberId",
         "name",
         "phone",
         "age",

@@ -26,7 +26,7 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
     // --- 1. Header Image ---
     try {
         const headerImg = new Image();
-        headerImg.src = '/headerpdf.jpeg'; // Assumes header.jpg is in the public folder
+        headerImg.src = '/header.jpg'; // Assumes header.jpg is in the public folder
         await new Promise((resolve, reject) => {
             headerImg.onload = resolve;
             headerImg.onerror = (err) => {
@@ -61,13 +61,12 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
 
     // --- 2. Member Info & User Photo ---
     const topContentY = yPos;
-    const memberId = `AIYF/2026/16${Math.floor(Math.random() * 900) + 100}`;
     const submissionDate = new Date(userData.submissionDate).toLocaleDateString('en-GB');
 
     // Add Member Details
     pdf.setFontSize(10);
     pdf.setFont("helvetica", "normal");
-    pdf.text(`Member ID: ${memberId}`, margin, topContentY + 5);
+    pdf.text(`Member ID: ${userData.memberId}`, margin, topContentY + 5);
     pdf.text(`Date: ${submissionDate}`, margin, topContentY + 10);
 
     let topSectionHeight = 15; // Minimum height for the text block
@@ -170,7 +169,6 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
 
   return (
     <>
-      {/* <h1 className="font-malayalam text-xl font-bold text-center p-4">നമുക്ക് ഒരുമിച്ച് പോരാടാം, മെച്ചപ്പെട്ടൊരു നാളേക്കായി!</h1> */}
       <Card className="w-full bg-transparent border-0 shadow-none">
         <CardHeader>
           <CardTitle className="font-malayalam text-center text-xs ">

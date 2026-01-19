@@ -20,6 +20,7 @@ import { mandalams } from '@/app/lib/locations';
 // Define the shape of a user document
 interface UserDoc {
     id: string;
+    memberId: string;
     name: string;
     phone: string;
     age: number;
@@ -84,8 +85,8 @@ export default function AdminDashboard() {
     doc.text('User Data', 14, 16);
     
     (doc as any).autoTable({
-      head: [['Sl.No.', 'Name', 'Phone', 'Age', 'Mandalam', 'Mekhala', 'Unit']],
-      body: filteredUsers.map((u, index) => [index + 1, u.name, u.phone, u.age, u.mandalam, u.mekhala, u.unit]),
+      head: [['Sl.No.', 'Member ID', 'Name', 'Phone', 'Age', 'Mandalam', 'Mekhala', 'Unit']],
+      body: filteredUsers.map((u, index) => [index + 1, u.memberId, u.name, u.phone, u.age, u.mandalam, u.mekhala, u.unit]),
       startY: 20,
     });
 
@@ -178,6 +179,7 @@ export default function AdminDashboard() {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Sl.No.</TableHead>
+                            <TableHead>Member ID</TableHead>
                             <TableHead>Name</TableHead>
                             <TableHead>Phone</TableHead>
                             <TableHead>Age</TableHead>
@@ -189,7 +191,7 @@ export default function AdminDashboard() {
                     <TableBody>
                         {isLoading ? (
                              <TableRow>
-                                <TableCell colSpan={7} className="text-center">
+                                <TableCell colSpan={8} className="text-center">
                                     <div className="flex justify-center items-center p-8">
                                         <Loader2 className="h-6 w-6 animate-spin" />
                                     </div>
@@ -199,6 +201,7 @@ export default function AdminDashboard() {
                             filteredUsers.map((user, index) => (
                                 <TableRow key={user.id}>
                                     <TableCell>{index + 1}</TableCell>
+                                    <TableCell>{user.memberId}</TableCell>
                                     <TableCell className="font-medium capitalize">{user.name}</TableCell>
                                     <TableCell>{user.phone}</TableCell>
                                     <TableCell>{user.age}</TableCell>
@@ -209,7 +212,7 @@ export default function AdminDashboard() {
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={7} className="text-center h-24">
+                                <TableCell colSpan={8} className="text-center h-24">
                                     No users found matching your filters.
                                 </TableCell>
                             </TableRow>

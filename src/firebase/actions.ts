@@ -1,7 +1,7 @@
 
 'use client';
 import { getAuth, signInAnonymously, type User } from "firebase/auth";
-import { doc, setDoc, getFirestore } from "firebase/firestore";
+import { doc, setDoc, getFirestore, collection, getDocs } from "firebase/firestore";
 import { type FormValues, type UserData } from "@/components/data-collection-form";
 import { FirebaseApp } from "firebase/app";
 import { errorEmitter } from "@/firebase/error-emitter";
@@ -17,11 +17,18 @@ export async function submitUserData(app: FirebaseApp, values: FormValues): Prom
   const user = await getAnonymousUser(app);
   const db = getFirestore(app);
 
+  const usersCollectionRef = collection(db, "users");
+  const querySnapshot = await getDocs(usersCollectionRef);
+  const userCount = querySnapshot.size;
+  const newIdNumber = 15001 + userCount;
+  const memberId = `AIYF/2026/${newIdNumber}`;
+
   // The 'photo' value from the form is already a Base64 data URL because of the resizing logic.
   const photoURL = values.photo || "";
 
   const dataToSave = {
     id: user.uid,
+    memberId: memberId,
     name: values.name,
     phone: values.phone,
     age: values.age,
@@ -49,6 +56,7 @@ export async function submitUserData(app: FirebaseApp, values: FormValues): Prom
 
   const result: UserData = {
     id: user.uid,
+    memberId: memberId,
     name: values.name,
     phone: values.phone,
     age: values.age,
