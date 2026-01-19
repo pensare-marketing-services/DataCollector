@@ -1,88 +1,82 @@
 "use client";
 
 import { useState } from 'react';
-import { getAuth, signOut } from "firebase/auth";
-import { DataCollectionForm, type UserData, type FormValues } from '@/components/data-collection-form';
-import { UserInfoDisplay } from '@/components/user-info-display';
-import { useFirebaseApp } from '@/firebase';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { submitUserData } from '@/firebase/actions';
+import { Loader2 } from 'lucide-react';
 
-export default function Home() {
-  const [userData, setUserData] = useState<UserData | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const app = useFirebaseApp();
+export default function AdminLoginPage() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth();
+  const router = useRouter();
   const { toast } = useToast();
 
-  const handleFormSubmit = async (values: FormValues) => {
-    if (!app) {
-      toast({
-        variant: "destructive",
-        title: "Firebase not initialized",
-        description: "The application is not connected to the database.",
-      });
-      return;
-    }
-    
-    setIsSubmitting(true);
-    try {
-      const newUserData = await submitUserData(app, values);
-      setUserData(newUserData);
-      toast({
-        title: "Success!",
-        description: "Your data has been submitted successfully.",
-      });
-    } catch (error) {
-      console.error("Submission Failed:", error);
-      toast({
-        variant: "destructive",
-        title: "Submission Failed",
-        description: error instanceof Error ? error.message : "An unknown error occurred. Please try again.",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
 
-  const handleGoBack = async () => {
-    if (app) {
-        const auth = getAuth(app);
-        try {
-            await signOut(auth);
-        } catch (error) {
-            console.error("Sign out error:", error);
+    setTimeout(() => { // Simulate network delay
+        if (login(username, password)) {
+            router.push('/admin');
+        } else {
             toast({
-                variant: "destructive",
-                title: "Failed to start new session",
-                description: "Could not sign out the previous user. Please refresh the page.",
+                variant: 'destructive',
+                title: 'Login Failed',
+                description: 'Invalid username or password.',
             });
+            setIsLoading(false);
         }
-    }
-    setUserData(null);
+    }, 500);
   };
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-background dark:bg-black">
-      <main className="container mx-auto flex flex-col items-center justify-center p-4">
-        <div className="w-full max-w-2xl">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary">
-              CollectIT
-            </h1>
-            <p className="text-muted-foreground mt-2">
-              {userData ? "Review the details below." : "Please fill in your details below."}
-            </p>
-          </div>
-          
-          {
-            !userData ? (
-              <DataCollectionForm onSubmit={handleFormSubmit} isSubmitting={isSubmitting} />
-            ) : (
-              <UserInfoDisplay userData={userData} onGoBack={handleGoBack} />
-            )
-          }
-        </div>
-      </main>
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <Card className="w-full max-w-sm">
+        <CardHeader>
+          <CardTitle className="text-2xl">Admin Login</CardTitle>
+          <CardDescription>
+            Enter your credentials to access the dashboard.
+          </CardDescription>
+        </CardHeader>
+        <form onSubmit={handleLogin}>
+          <CardContent className="grid gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                type="text"
+                placeholder="admin"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Login
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
     </div>
   );
 }

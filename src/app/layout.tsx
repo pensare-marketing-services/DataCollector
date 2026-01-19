@@ -2,6 +2,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { FirebaseClientProvider } from '@/firebase';
+import { AuthProvider } from '@/context/AuthContext';
 
 export const metadata: Metadata = {
   title: 'CollectIT',
@@ -21,9 +22,11 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased" suppressHydrationWarning={true}>
-        <FirebaseClientProvider>
-          {children}
-        </FirebaseClientProvider>
+        <AuthProvider>
+          <FirebaseClientProvider>
+            {children}
+          </FirebaseClientProvider>
+        </AuthProvider>
         <Toaster />
       </body>
     </html>
