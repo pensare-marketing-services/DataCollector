@@ -8,7 +8,7 @@ import { collection, query, orderBy } from 'firebase/firestore';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Download, Share2, LogOut, Loader2 } from 'lucide-react';
+import { Download, Share2, LogOut, Loader2, Filter } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -38,6 +38,7 @@ export default function AdminDashboard() {
   const [unitFilter, setUnitFilter] = useState('');
   const [minAgeFilter, setMinAgeFilter] = useState('');
   const [maxAgeFilter, setMaxAgeFilter] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
   
   // Memoize the query to prevent re-renders
   const usersQuery = useMemoFirebase(() => {
@@ -121,6 +122,10 @@ export default function AdminDashboard() {
         <header className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
             <h1 className="text-3xl font-bold">Admin Dashboard</h1>
             <div className="flex items-center gap-2">
+                <Button onClick={() => setShowFilters(!showFilters)} variant="outline">
+                    <Filter className="mr-2 h-4 w-4" />
+                    Filter
+                </Button>
                 <Button onClick={handleShareForm} variant="outline">
                     <Share2 className="mr-2 h-4 w-4" />
                     Share Form
@@ -132,17 +137,19 @@ export default function AdminDashboard() {
             </div>
         </header>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6 p-4 border rounded-lg bg-card">
-            <Input placeholder="Filter by name..." value={nameFilter} onChange={e => setNameFilter(e.target.value)} />
-            <Input placeholder="Mandalam..." value={mandalamFilter} onChange={e => setMandalamFilter(e.target.value)} />
-            <Input placeholder="Mekhala..." value={mekhalaFilter} onChange={e => setMekhalaFilter(e.target.value)} />
-            <Input placeholder="Unit..." value={unitFilter} onChange={e => setUnitFilter(e.target.value)} />
-            <div className="flex items-center gap-2 lg:col-span-2">
-                <Input type="number" placeholder="Min Age" value={minAgeFilter} onChange={e => setMinAgeFilter(e.target.value)} />
-                <span className="text-muted-foreground">-</span>
-                <Input type="number" placeholder="Max Age" value={maxAgeFilter} onChange={e => setMaxAgeFilter(e.target.value)} />
+        {showFilters && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6 p-4 border rounded-lg bg-card animate-in fade-in-0 duration-300">
+                <Input placeholder="Filter by name..." value={nameFilter} onChange={e => setNameFilter(e.target.value)} />
+                <Input placeholder="Mandalam..." value={mandalamFilter} onChange={e => setMandalamFilter(e.target.value)} />
+                <Input placeholder="Mekhala..." value={mekhalaFilter} onChange={e => setMekhalaFilter(e.target.value)} />
+                <Input placeholder="Unit..." value={unitFilter} onChange={e => setUnitFilter(e.target.value)} />
+                <div className="flex items-center gap-2 lg:col-span-2">
+                    <Input type="number" placeholder="Min Age" value={minAgeFilter} onChange={e => setMinAgeFilter(e.target.value)} />
+                    <span className="text-muted-foreground">-</span>
+                    <Input type="number" placeholder="Max Age" value={maxAgeFilter} onChange={e => setMaxAgeFilter(e.target.value)} />
+                </div>
             </div>
-        </div>
+        )}
         
         <div className="border rounded-lg overflow-hidden">
             <div className="relative overflow-x-auto">
