@@ -12,6 +12,7 @@ import { Download, Share2, LogOut, Loader2, Filter } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import placeholderImages from '@/app/lib/placeholder-images.json';
 
 // Define the shape of a user document
 interface UserDoc {
@@ -160,7 +161,13 @@ export default function AdminDashboard() {
             </div>
         )}
         
-        <div className="border rounded-lg overflow-hidden">
+        <div className="border rounded-lg overflow-hidden relative">
+            <div
+                className="absolute inset-0 bg-contain bg-no-repeat bg-center opacity-10 pointer-events-none"
+                style={{
+                    backgroundImage: `url(${placeholderImages.logo.src})`,
+                }}
+            />
             <div className="relative overflow-x-auto">
                 <Table>
                     <TableHeader>
