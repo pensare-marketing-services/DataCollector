@@ -39,10 +39,17 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
                 img.onload = resolve;
                 img.onerror = reject;
             });
+            
+            // Define a max width and height for the image in the PDF
+            const maxImgWidth = 60;
+            const maxImgHeight = 60;
+            
+            // Calculate the best fit for the image, preserving aspect ratio
+            const ratio = Math.min(maxImgWidth / img.width, maxImgHeight / img.height);
+            const imgWidth = img.width * ratio;
+            const imgHeight = img.height * ratio;
 
-            const imgWidth = 60;
-            const imgHeight = (img.height * imgWidth) / img.width;
-            const xPosImg = (pdfWidth - imgWidth) / 2;
+            const xPosImg = (pdfWidth - imgWidth) / 2; // Center the image
             pdf.addImage(userData.photoURL, 'PNG', xPosImg, yPos, imgWidth, imgHeight);
             yPos += imgHeight + 15;
         } catch (e) {
