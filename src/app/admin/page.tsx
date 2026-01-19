@@ -131,7 +131,7 @@ export default function AdminDashboard() {
   return (
     <div className="container mx-auto p-4 md:p-8">
         <header className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
-            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+            <h1 className="text-3xl font-bold">Dashboard</h1>
             <div className="flex items-center gap-2">
                 <Button onClick={() => setShowFilters(!showFilters)} variant="outline">
                     <Filter className="mr-2 h-4 w-4" />
