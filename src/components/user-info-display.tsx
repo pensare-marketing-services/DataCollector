@@ -5,7 +5,7 @@ import { Download, Share2, Undo2 } from "lucide-react"
 import jsPDF from "jspdf";
 import type { UserData } from "./data-collection-form"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
 
 interface UserInfoDisplayProps {
@@ -21,7 +21,7 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
     const margin = 15;
-    let yPos = 0; // Start at the top
+    let yPos = margin; // Start with top margin
 
     // --- 1. Header Image ---
     try {
@@ -38,13 +38,14 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
 
         if (headerImg.width > 0) {
             const imgProps = pdf.getImageProperties(headerImg);
-            // Calculate height to maintain aspect ratio, constrained to full width
-            const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            // Calculate width and height with padding
+            const imageWidth = pdfWidth - (margin * 2);
+            const imgHeight = (imgProps.height * imageWidth) / imgProps.width;
             // Limit header to a max of 20% of the page height
             const finalImageHeight = Math.min(imgHeight, pdfHeight * 0.2); 
             
-            pdf.addImage(headerImg, 'PNG', 0, 0, pdfWidth, finalImageHeight);
-            yPos = finalImageHeight; // Set current Y position to the bottom of the header
+            pdf.addImage(headerImg, 'PNG', margin, yPos, imageWidth, finalImageHeight);
+            yPos += finalImageHeight; // Set current Y position to the bottom of the header
         }
     } catch (e) {
         console.error("An error occurred while adding the header image to the PDF.", e);
@@ -169,10 +170,10 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
 
   return (
     <>
-      <h1 className="font-malayalam text-xl font-bold text-center p-4">ഒരുമിച്ച് പോരാടാം, നല്ലൊരു നാളേക്കായ്!</h1>
+      <h1 className="font-malayalam text-xl font-bold text-center p-4">നമുക്ക് ഒരുമിച്ച് പോരാടാം, മെച്ചപ്പെട്ടൊരു നാളേക്കായി!</h1>
       <Card className="w-full bg-transparent border-0 shadow-none">
         <CardHeader>
-          <CardTitle className="font-malayalam text-center text-sm font-normal">പ്രിയ സുഹൃത്തേ, അഖിലേന്ത്യാ യൂത്ത് ഫെഡറേഷൻ (AIYF) അംഗത്വ ക്യാമ്പയിന്റെ ഭാഗമായതിന് നന്ദി. ജനാധിപത്യത്തിൻ്റെയും മതേതരത്വത്തിൻ്റെയും കാവലാളാകാനുള്ള താങ്കളുടെ ഈ തീരുമാനം അഭിനന്ദനാർഹമാണ്. താങ്കളുടെ അംഗത്വ അപേക്ഷ വിജയകരമായി പൂർത്തിയായിരിക്കുന്നു.</CardTitle>
+          <CardTitle className="font-malayalam text-center text-sm font-bold">പ്രിയ സുഹൃത്തേ, അഖിലേന്ത്യാ യൂത്ത് ഫെഡറേഷൻ (AIYF) അംഗത്വ ക്യാമ്പയിന്റെ ഭാഗമായതിന് നന്ദി. ജനാധിപത്യത്തിൻ്റെയും മതേതരത്വത്തിൻ്റെയും കാവലാളാകാനുള്ള താങ്കളുടെ ഈ തീരുമാനം അഭിനന്ദനാർഹമാണ്. താങ്കളുടെ അംഗത്വ അപേക്ഷ വിജയകരമായി പൂർത്തിയായിരിക്കുന്നു.</CardTitle>
         </CardHeader>
         
         <CardFooter className="flex flex-col-reverse sm:flex-row items-center justify-between gap-4">
