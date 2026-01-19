@@ -27,7 +27,7 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
     // --- PDF Title ---
     pdf.setFontSize(22);
     pdf.setFont("helvetica", "bold");
-    pdf.text("User Profile", pdfWidth / 2, yPos, { align: "center" });
+    pdf.text("AIYF", pdfWidth / 2, yPos, { align: "center" });
     yPos += 15;
     
     // --- User Image ---
