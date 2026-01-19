@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { getAuth, signOut } from "firebase/auth";
 import { DataCollectionForm, type UserData, type FormValues } from '@/components/data-collection-form';
 import { UserInfoDisplay } from '@/components/user-info-display';
@@ -54,31 +53,22 @@ export default function FormPage() {
   };
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-background dark:bg-black">
-      <main className="container mx-auto flex flex-col items-center justify-center p-4">
-        <div className="w-full max-w-2xl">
-          <div className="text-center mb-8 flex flex-col items-center">
-            <Image
-                src={placeholderImages.logo.src}
-                width={placeholderImages.logo.width}
-                height={placeholderImages.logo.height}
-                alt={placeholderImages.logo.alt}
-                data-ai-hint={placeholderImages.logo['data-ai-hint']}
-                className="mb-4"
-                priority
-            />
-
-          </div>
-          
-          {
-            !userData ? (
-              <DataCollectionForm onSubmit={handleFormSubmit} isSubmitting={isSubmitting} />
-            ) : (
-              <UserInfoDisplay userData={userData} onGoBack={handleGoBack} />
-            )
-          }
-        </div>
-      </main>
+    <div 
+        className="relative min-h-screen w-full bg-cover bg-center"
+        style={{ backgroundImage: `url(${placeholderImages.logo.src})` }}
+    >
+        <div className="absolute inset-0 bg-background/90 dark:bg-black/90 backdrop-blur-sm" />
+        <main className="relative z-10 container mx-auto flex flex-col items-center justify-center p-4 min-h-screen">
+            <div className="w-full max-w-2xl">
+            {
+                !userData ? (
+                <DataCollectionForm onSubmit={handleFormSubmit} isSubmitting={isSubmitting} />
+                ) : (
+                <UserInfoDisplay userData={userData} onGoBack={handleGoBack} />
+                )
+            }
+            </div>
+        </main>
     </div>
   );
 }

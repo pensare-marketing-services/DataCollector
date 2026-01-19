@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 const formSchema = z.object({
@@ -56,13 +56,9 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
 
   return (
     <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Data Collection Form</CardTitle>
-        <CardDescription>Enter your details accurately.</CardDescription>
-      </CardHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 pt-6">
             <FormField
               control={form.control}
               name="name"
