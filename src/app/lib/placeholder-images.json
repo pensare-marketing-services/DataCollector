@@ -1,9 +1,8 @@
 {
   "logo": {
-    "src": "https://picsum.photos/seed/applogo/800/200",
+    "src": "/header.png",
     "width": 800,
     "height": 200,
-    "alt": "GatherWise Logo",
-    "data-ai-hint": "abstract banner"
+    "alt": "Form Header"
   }
 }
