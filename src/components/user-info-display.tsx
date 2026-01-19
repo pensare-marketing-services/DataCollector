@@ -137,8 +137,8 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
   };
 
   return (
-    <Card className="w-full">
-      <div className="bg-card p-6">
+    <Card className="w-full bg-transparent border-0 shadow-none">
+      <div className="p-6">
         <div className="flex flex-row items-center gap-6">
           <Avatar className="h-28 w-28 border-4 border-secondary">
             <AvatarImage src={userData.photoURL} alt={userData.name} />

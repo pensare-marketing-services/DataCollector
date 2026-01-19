@@ -55,7 +55,7 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
   });
 
   return (
-    <Card className="w-full">
+    <Card className="w-full bg-transparent border-0 shadow-none">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardContent className="space-y-6 pt-6">

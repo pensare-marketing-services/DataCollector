@@ -53,20 +53,26 @@ export default function FormPage() {
   };
 
   return (
-    <div 
-        className="relative min-h-screen w-full bg-contain bg-no-repeat bg-center"
-        style={{ backgroundImage: `url(${placeholderImages.logo.src})` }}
-    >
-        <div className="absolute inset-0 bg-background/80 dark:bg-black/80 backdrop-blur-sm" />
-        <main className="relative z-10 container mx-auto flex flex-col items-center justify-center p-4 min-h-screen">
+    <div className="min-h-screen bg-background">
+        <main className="container mx-auto flex flex-col items-center justify-center p-4 min-h-screen">
             <div className="w-full max-w-2xl">
-            {
-                !userData ? (
-                <DataCollectionForm onSubmit={handleFormSubmit} isSubmitting={isSubmitting} />
-                ) : (
-                <UserInfoDisplay userData={userData} onGoBack={handleGoBack} />
-                )
-            }
+              <div className="border rounded-lg overflow-hidden relative bg-card shadow-sm">
+                  <div
+                      className="absolute inset-0 bg-contain bg-no-repeat bg-center opacity-10 pointer-events-none"
+                      style={{
+                          backgroundImage: `url(${placeholderImages.logo.src})`,
+                      }}
+                  />
+                  <div className="relative">
+                      {
+                          !userData ? (
+                          <DataCollectionForm onSubmit={handleFormSubmit} isSubmitting={isSubmitting} />
+                          ) : (
+                          <UserInfoDisplay userData={userData} onGoBack={handleGoBack} />
+                          )
+                      }
+                  </div>
+              </div>
             </div>
         </main>
     </div>
