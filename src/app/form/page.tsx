@@ -67,10 +67,9 @@ export default function FormPage() {
                                 alt={placeholderImages.logo.alt}
                                 width={placeholderImages.logo.width}
                                 height={placeholderImages.logo.height}
-                                data-ai-hint={placeholderImages.logo['data-ai-hint']}
+                                // data-ai-hint={placeholderImages.logo['data-ai-hint']}
                                 className="w-full h-auto"
                               />
-                              <h2 className="text-2xl font-bold text-center pt-6">Please fill the form</h2>
                               <DataCollectionForm onSubmit={handleFormSubmit} isSubmitting={isSubmitting} />
                             </>
                           ) : (
