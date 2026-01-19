@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
+import { useAdminAuth } from '@/context/AuthContext';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { Input } from '@/components/ui/input';
@@ -26,7 +26,7 @@ interface UserDoc {
 }
 
 export default function AdminDashboard() {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout } = useAdminAuth();
   const router = useRouter();
   const firestore = useFirestore();
   const { toast } = useToast();
