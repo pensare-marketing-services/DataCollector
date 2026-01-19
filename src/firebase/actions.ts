@@ -1,3 +1,4 @@
+
 'use client';
 import { getAuth, signInAnonymously, type User } from "firebase/auth";
 import { doc, setDoc, getFirestore } from "firebase/firestore";
@@ -29,7 +30,7 @@ export async function submitUserData(app: FirebaseApp, values: FormValues): Prom
     unit: values.unit,
     photoURL: photoURL, // Save the Base64 data URL directly to Firestore
     submissionDate: new Date().toISOString(),
-    acceptedDeclaration: true,
+    acceptedDeclaration: values.acceptedDeclaration,
   };
 
   const userDocRef = doc(db, "users", user.uid);

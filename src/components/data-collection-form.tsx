@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -21,6 +22,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Combobox } from "@/components/ui/combobox"
 import { mandalams } from "@/app/lib/locations"
+import { Checkbox } from "./ui/checkbox"
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -30,10 +32,13 @@ const formSchema = z.object({
   mandalam: z.string().min(1, { message: "Mandalam is required." }),
   mekhala: z.string().min(1, { message: "Mekhala is required." }),
   unit: z.string().min(1, { message: "Unit is required." }),
+  acceptedDeclaration: z.boolean().default(false).refine(val => val === true, {
+    message: "You must accept the declaration to submit.",
+  }),
 });
 
 export type FormValues = z.infer<typeof formSchema>;
-export type UserData = Omit<FormValues, 'photo'> & { photoURL: string; id?: string };
+export type UserData = Omit<FormValues, 'photo' | 'acceptedDeclaration'> & { photoURL: string; id?: string };
 
 interface DataCollectionFormProps {
   onSubmit: (data: FormValues) => void;
@@ -54,6 +59,7 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
       mekhala: "",
       unit: "",
       photo: undefined,
+      acceptedDeclaration: false,
     },
   });
   
@@ -62,7 +68,7 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
     <Card className="w-full bg-transparent border-0 shadow-none">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent className="space-y-1 pt-1">
+          <CardContent className="space-y-4 pt-4">
             <FormField
               control={form.control}
               name="name"
@@ -76,7 +82,7 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
                 </FormItem>
               )}
             />
-            <div className="grid grid-cols-2 md:grid-cols-2 gap-1">
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="phone"
@@ -104,7 +110,7 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
                 )}
               />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField
                 control={form.control}
                 name="mandalam"
@@ -214,6 +220,27 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
                         />
                     </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="acceptedDeclaration"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Accept Declaration</FormLabel>
+                    <FormDescription>
+                     I hereby declare that the information provided is true and correct to the best of my knowledge and belief.
+                    </FormDescription>
+                    <FormMessage />
+                  </div>
                 </FormItem>
               )}
             />
