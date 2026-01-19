@@ -1,13 +1,12 @@
 "use client"
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Download, Share2, Undo2 } from "lucide-react"
 import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
 import type { UserData } from "./data-collection-form"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
 
 interface UserInfoDisplayProps {
@@ -17,27 +16,76 @@ interface UserInfoDisplayProps {
 
 export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
   const { toast } = useToast();
-  const printRef = useRef<HTMLDivElement>(null);
   const [isAccepted, setIsAccepted] = useState(false);
 
   const handleDownload = async () => {
-    const element = printRef.current;
-    if (!element) {
-      toast({
-        title: "Download Failed",
-        description: "Could not generate PDF.",
-        variant: "destructive"
-      });
-      return;
-    }
-    const canvas = await html2canvas(element, { scale: 2, useCORS: true, backgroundColor: null });
-    const data = canvas.toDataURL('image/png');
-
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    const margin = 15;
+    let yPos = margin;
 
-    pdf.addImage(data, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    // --- PDF Title ---
+    pdf.setFontSize(22);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("CollectIT User Profile", pdfWidth / 2, yPos, { align: "center" });
+    yPos += 15;
+    
+    // --- User Image ---
+    if (userData.photoURL) {
+        try {
+            const img = new Image();
+            img.src = userData.photoURL;
+            await new Promise((resolve, reject) => {
+                img.onload = resolve;
+                img.onerror = reject;
+            });
+
+            const imgWidth = 60;
+            const imgHeight = (img.height * imgWidth) / img.width;
+            const xPosImg = (pdfWidth - imgWidth) / 2;
+            pdf.addImage(userData.photoURL, 'PNG', xPosImg, yPos, imgWidth, imgHeight);
+            yPos += imgHeight + 15;
+        } catch (e) {
+            console.error("Could not add image to PDF", e);
+            toast({
+              title: "PDF Generation Error",
+              description: "The user photo could not be added to the PDF.",
+              variant: "destructive"
+            });
+        }
+    }
+    
+    // --- User Details ---
+    pdf.setFontSize(16);
+    pdf.setFont("helvetica", "bold");
+    pdf.text(userData.name, pdfWidth / 2, yPos, { align: "center" });
+    yPos += 15;
+
+    pdf.setFontSize(12);
+    const col1X = margin;
+    const col2X = margin + 50;
+    
+    const details = [
+        { label: "Age", value: userData.age.toString() },
+        { label: "Phone Number", value: userData.phone },
+        { label: "Mandalam", value: userData.mandalam },
+        { label: "Mekhala", value: userData.mekhala },
+        { label: "Unit", value: userData.unit },
+    ];
+    
+    details.forEach(detail => {
+        if (yPos > pdf.internal.pageSize.getHeight() - margin) {
+            pdf.addPage();
+            yPos = margin;
+        }
+        pdf.setFont("helvetica", "bold");
+        pdf.text(`${detail.label}:`, col1X, yPos);
+        pdf.setFont("helvetica", "normal");
+        pdf.text(detail.value, col2X, yPos);
+        yPos += 10;
+    });
+
+    // --- Save PDF ---
     pdf.save(`${userData.name.replace(/\s+/g, '_').toLowerCase()}_profile.pdf`);
 
     toast({
@@ -90,7 +138,7 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
 
   return (
     <Card className="w-full">
-      <div ref={printRef} className="bg-card p-6">
+      <div className="bg-card p-6">
         <div className="flex flex-row items-center gap-6">
           <Avatar className="h-28 w-28 border-4 border-secondary">
             <AvatarImage src={userData.photoURL} alt={userData.name} />
