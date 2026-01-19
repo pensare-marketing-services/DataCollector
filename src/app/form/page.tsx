@@ -8,7 +8,7 @@ import { UserInfoDisplay } from '@/components/user-info-display';
 import { useFirebaseApp } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { submitUserData } from '@/firebase/actions';
-import placeholderImages from '@/lib/placeholder-images.json';
+import placeholderImages from '@/app/lib/placeholder-images.json';
 
 export default function FormPage() {
   const [userData, setUserData] = useState<UserData | null>(null);
