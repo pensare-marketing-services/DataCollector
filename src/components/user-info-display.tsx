@@ -26,7 +26,7 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
     // --- 1. Header Image ---
     try {
         const headerImg = new Image();
-        headerImg.src = '/header.jpg'; // Assumes header.jpg is in the public folder
+        headerImg.src = '/headerpdf.jpeg'; // Assumes header.jpg is in the public folder
         await new Promise((resolve, reject) => {
             headerImg.onload = resolve;
             headerImg.onerror = (err) => {
@@ -170,10 +170,13 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
 
   return (
     <>
-      <h1 className="font-malayalam text-xl font-bold text-center p-4">നമുക്ക് ഒരുമിച്ച് പോരാടാം, മെച്ചപ്പെട്ടൊരു നാളേക്കായി!</h1>
+      {/* <h1 className="font-malayalam text-xl font-bold text-center p-4">നമുക്ക് ഒരുമിച്ച് പോരാടാം, മെച്ചപ്പെട്ടൊരു നാളേക്കായി!</h1> */}
       <Card className="w-full bg-transparent border-0 shadow-none">
         <CardHeader>
-          <CardTitle className="font-malayalam text-center text-sm font-bold">പ്രിയ സുഹൃത്തേ, അഖിലേന്ത്യാ യൂത്ത് ഫെഡറേഷൻ (AIYF) അംഗത്വ ക്യാമ്പയിന്റെ ഭാഗമായതിന് നന്ദി. ജനാധിപത്യത്തിൻ്റെയും മതേതരത്വത്തിൻ്റെയും കാവലാളാകാനുള്ള താങ്കളുടെ ഈ തീരുമാനം അഭിനന്ദനാർഹമാണ്. താങ്കളുടെ അംഗത്വ അപേക്ഷ വിജയകരമായി പൂർത്തിയായിരിക്കുന്നു.</CardTitle>
+          <CardTitle className="font-malayalam text-center text-xs ">
+            <p>പ്രിയ സുഹൃത്തേ,</p>
+            <p className="pt-4">അഖിലേന്ത്യാ യൂത്ത് ഫെഡറേഷൻ (AIYF) അംഗത്വ ക്യാമ്പയിന്റെ ഭാഗമായതിന് നന്ദി. ജനാധിപത്യത്തിൻ്റെയും മതേതരത്വത്തിൻ്റെയും കാവലാളാകാനുള്ള താങ്കളുടെ ഈ തീരുമാനം അഭിനന്ദനാർഹമാണ്. താങ്കളുടെ അംഗത്വ അപേക്ഷ വിജയകരമായി പൂർത്തിയായിരിക്കുന്നു.</p>
+          </CardTitle>
         </CardHeader>
         
         <CardFooter className="flex flex-col-reverse sm:flex-row items-center justify-between gap-4">
