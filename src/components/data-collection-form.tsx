@@ -59,7 +59,7 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
     <Card className="w-full bg-transparent border-0 shadow-none">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent className="space-y-4 pt-2">
+          <CardContent className="space-y-2 pt-1">
             <FormField
               control={form.control}
               name="name"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { getAuth, signOut } from "firebase/auth";
 import { DataCollectionForm, type UserData, type FormValues } from '@/components/data-collection-form';
 import { UserInfoDisplay } from '@/components/user-info-display';
@@ -57,16 +58,20 @@ export default function FormPage() {
         <main className="container mx-auto flex flex-col items-center justify-center p-4 min-h-screen">
             <div className="w-full max-w-2xl">
               <div className="border rounded-lg overflow-hidden relative bg-card shadow-sm">
-                  <div
-                      className="absolute inset-0 bg-contain bg-no-repeat bg-center opacity-10 pointer-events-none"
-                      style={{
-                          backgroundImage: `url(${placeholderImages.logo.src})`,
-                      }}
-                  />
                   <div className="relative">
                       {
                           !userData ? (
                             <>
+                              <div className="flex justify-center items-center p-6 bg-muted/30 border-b">
+                                <Image
+                                  src={placeholderImages.logo.src}
+                                  alt={placeholderImages.logo.alt}
+                                  width={placeholderImages.logo.width}
+                                  height={placeholderImages.logo.height}
+                                  data-ai-hint={placeholderImages.logo['data-ai-hint']}
+                                  className="rounded-full"
+                                />
+                              </div>
                               <h2 className="text-2xl font-bold text-center pt-6">Please fill the form</h2>
                               <DataCollectionForm onSubmit={handleFormSubmit} isSubmitting={isSubmitting} />
                             </>

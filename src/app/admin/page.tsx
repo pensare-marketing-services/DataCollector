@@ -163,12 +163,12 @@ export default function AdminDashboard() {
         )}
         
         <div className="border rounded-lg overflow-hidden relative">
-            <div
+            {/* <div
                 className="absolute inset-0 bg-contain bg-no-repeat bg-center opacity-10 pointer-events-none"
                 style={{
                     backgroundImage: `url(${placeholderImages.logo.src})`,
                 }}
-            />
+            /> */}
             <div className="relative overflow-x-auto">
                 <Table>
                     <TableHeader>

@@ -1,7 +1,9 @@
 {
   "logo": {
-    "src": "/logo-placeholder.svg",
-    "alt": "Flag background",
-    "data-ai-hint": "flag red blue"
+    "src": "https://picsum.photos/seed/applogo/100/100",
+    "width": 80,
+    "height": 80,
+    "alt": "GatherWise Logo",
+    "data-ai-hint": "abstract logo"
   }
 }
