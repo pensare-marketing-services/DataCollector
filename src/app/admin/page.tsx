@@ -14,6 +14,8 @@ import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import placeholderImages from '@/app/lib/placeholder-images.json';
+import { Combobox } from '@/components/ui/combobox';
+import { mandalams, mekhalas, units } from '@/app/lib/locations';
 
 // Define the shape of a user document
 interface UserDoc {
@@ -151,9 +153,30 @@ export default function AdminDashboard() {
         {showFilters && (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6 p-4 border rounded-lg bg-card animate-in fade-in-0 duration-300">
                 <Input placeholder="Filter by name..." value={nameFilter} onChange={e => setNameFilter(e.target.value)} />
-                <Input placeholder="Mandalam..." value={mandalamFilter} onChange={e => setMandalamFilter(e.target.value)} />
-                <Input placeholder="Mekhala..." value={mekhalaFilter} onChange={e => setMekhalaFilter(e.target.value)} />
-                <Input placeholder="Unit..." value={unitFilter} onChange={e => setUnitFilter(e.target.value)} />
+                <Combobox
+                    options={mandalams}
+                    value={mandalamFilter}
+                    onChange={setMandalamFilter}
+                    placeholder="Filter by Mandalam..."
+                    searchPlaceholder="Search mandalam..."
+                    emptyText="No mandalam found."
+                />
+                <Combobox
+                    options={mekhalas}
+                    value={mekhalaFilter}
+                    onChange={setMekhalaFilter}
+                    placeholder="Filter by Mekhala..."
+                    searchPlaceholder="Search mekhala..."
+                    emptyText="No mekhala found."
+                />
+                <Combobox
+                    options={units}
+                    value={unitFilter}
+                    onChange={setUnitFilter}
+                    placeholder="Filter by Unit..."
+                    searchPlaceholder="Search unit..."
+                    emptyText="No unit found."
+                />
                 <div className="flex items-center gap-2 lg:col-span-2">
                     <Input type="number" placeholder="Min Age" value={minAgeFilter} onChange={e => setMinAgeFilter(e.target.value)} />
                     <span className="text-muted-foreground">-</span>
