@@ -8,7 +8,6 @@ import { FirestorePermissionError } from "@/firebase/errors";
 
 async function getAnonymousUser(app: FirebaseApp): Promise<User> {
     const auth = getAuth(app);
-    // This will create a new anonymous user if one doesn't exist, or return the existing one.
     const userCredential = await signInAnonymously(auth);
     return userCredential.user;
 }
@@ -17,6 +16,7 @@ export async function submitUserData(app: FirebaseApp, values: FormValues): Prom
   const user = await getAnonymousUser(app);
   const db = getFirestore(app);
 
+  // The 'photo' value from the form is already a Base64 data URL because of the resizing logic.
   const photoURL = values.photo || "";
 
   const dataToSave = {
@@ -27,13 +27,14 @@ export async function submitUserData(app: FirebaseApp, values: FormValues): Prom
     mandalam: values.mandalam,
     mekhala: values.mekhala,
     unit: values.unit,
-    photoURL: photoURL,
+    photoURL: photoURL, // Save the Base64 data URL directly to Firestore
     submissionDate: new Date().toISOString(),
     acceptedDeclaration: true,
   };
 
   const userDocRef = doc(db, "users", user.uid);
 
+  // Save the entire document, including the image data URL, to Firestore.
   await setDoc(userDocRef, dataToSave).catch((serverError) => {
       const permissionError = new FirestorePermissionError({
         path: userDocRef.path,
@@ -41,6 +42,7 @@ export async function submitUserData(app: FirebaseApp, values: FormValues): Prom
         requestResourceData: dataToSave,
       });
       errorEmitter.emit('permission-error', permissionError);
+      // Re-throw the original error to be caught by the form handler
       throw serverError;
   });
 

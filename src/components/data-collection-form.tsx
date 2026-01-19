@@ -86,7 +86,6 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
                           accept="image/*"
                           className="hidden"
                           ref={(e) => {
-                            // field.ref(e) // RHF's ref
                             if(e) fileInputRef.current = e;
                           }}
                           onChange={(e) => {
@@ -102,6 +101,7 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
                                const img = new Image();
                                img.onload = () => {
                                  const canvas = document.createElement('canvas');
+                                 // Resize the image to a max width of 400px to keep file size down
                                  const MAX_WIDTH = 400;
                                  const scaleSize = MAX_WIDTH / img.width;
                                  canvas.width = MAX_WIDTH;
@@ -109,9 +109,11 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
 
                                  const ctx = canvas.getContext('2d');
                                  ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                                 const dataUrl = canvas.toDataURL(file.type, 0.7); // 0.7 quality
                                  
+                                 // Convert canvas to a data URL with compression
+                                 const dataUrl = canvas.toDataURL(file.type, 0.7); // 70% quality
+                                 
+                                 // Set the form value to the resized image's data URL
                                  field.onChange(dataUrl);
                                  setPhotoPreview(dataUrl);
                                };
