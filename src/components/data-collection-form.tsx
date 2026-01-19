@@ -65,70 +65,6 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
           <CardContent className="space-y-6">
             <FormField
               control={form.control}
-              name="photo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Photo</FormLabel>
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-4 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                          <Avatar className="h-24 w-24">
-                            <AvatarImage src={photoPreview ?? undefined} alt="Photo preview" />
-                            <AvatarFallback>
-                              <User className="h-10 w-10 text-muted-foreground" />
-                            </AvatarFallback>
-                          </Avatar>
-                          <span className="text-sm text-muted-foreground">Click to upload photo (Optional)</span>
-                        </div>
-                    </div>
-                    <FormControl>
-                        <Input 
-                          type="file" 
-                          accept="image/*"
-                          className="hidden"
-                          ref={(e) => {
-                            if(e) fileInputRef.current = e;
-                          }}
-                          onChange={(e) => {
-                             const file = e.target.files?.[0];
-                             if (!file) {
-                               field.onChange(undefined);
-                               setPhotoPreview(null);
-                               return;
-                             }
-
-                             const reader = new FileReader();
-                             reader.onload = (event) => {
-                               const img = new Image();
-                               img.onload = () => {
-                                 const canvas = document.createElement('canvas');
-                                 // Resize the image to a max width of 400px to keep file size down
-                                 const MAX_WIDTH = 400;
-                                 const scaleSize = MAX_WIDTH / img.width;
-                                 canvas.width = MAX_WIDTH;
-                                 canvas.height = img.height * scaleSize;
-
-                                 const ctx = canvas.getContext('2d');
-                                 ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
-                                 
-                                 // Convert canvas to a data URL with compression
-                                 const dataUrl = canvas.toDataURL(file.type, 0.7); // 70% quality
-                                 
-                                 // Set the form value to the resized image's data URL
-                                 field.onChange(dataUrl);
-                                 setPhotoPreview(dataUrl);
-                               };
-                               img.src = event.target?.result as string;
-                             };
-                             reader.readAsDataURL(file);
-                          }}
-                        />
-                    </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
@@ -209,6 +145,70 @@ export function DataCollectionForm({ onSubmit, isSubmitting }: DataCollectionFor
                 )}
                 />
             </div>
+            <FormField
+              control={form.control}
+              name="photo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Photo</FormLabel>
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-4 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                          <Avatar className="h-24 w-24">
+                            <AvatarImage src={photoPreview ?? undefined} alt="Photo preview" />
+                            <AvatarFallback>
+                              <User className="h-10 w-10 text-muted-foreground" />
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-sm text-muted-foreground">Click to upload photo (Optional)</span>
+                        </div>
+                    </div>
+                    <FormControl>
+                        <Input 
+                          type="file" 
+                          accept="image/*"
+                          className="hidden"
+                          ref={(e) => {
+                            if(e) fileInputRef.current = e;
+                          }}
+                          onChange={(e) => {
+                             const file = e.target.files?.[0];
+                             if (!file) {
+                               field.onChange(undefined);
+                               setPhotoPreview(null);
+                               return;
+                             }
+
+                             const reader = new FileReader();
+                             reader.onload = (event) => {
+                               const img = new Image();
+                               img.onload = () => {
+                                 const canvas = document.createElement('canvas');
+                                 // Resize the image to a max width of 400px to keep file size down
+                                 const MAX_WIDTH = 400;
+                                 const scaleSize = MAX_WIDTH / img.width;
+                                 canvas.width = MAX_WIDTH;
+                                 canvas.height = img.height * scaleSize;
+
+                                 const ctx = canvas.getContext('2d');
+                                 ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+                                 
+                                 // Convert canvas to a data URL with compression
+                                 const dataUrl = canvas.toDataURL(file.type, 0.7); // 70% quality
+                                 
+                                 // Set the form value to the resized image's data URL
+                                 field.onChange(dataUrl);
+                                 setPhotoPreview(dataUrl);
+                               };
+                               img.src = event.target?.result as string;
+                             };
+                             reader.readAsDataURL(file);
+                          }}
+                        />
+                    </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90" disabled={isSubmitting}>
