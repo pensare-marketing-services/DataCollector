@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuth } from '@/context/AuthContext';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -29,6 +29,7 @@ export default function AdminDashboard() {
   const { isAuthenticated, logout } = useAdminAuth();
   const router = useRouter();
   const firestore = useFirestore();
+  const { user, isUserLoading: isAuthLoading } = useUser();
   const { toast } = useToast();
 
   // Filters state
@@ -40,19 +41,22 @@ export default function AdminDashboard() {
   const [maxAgeFilter, setMaxAgeFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   
-  // Memoize the query to prevent re-renders
+  // Memoize the query to prevent re-renders, and wait for auth to be ready.
   const usersQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
+    if (!firestore || isAuthLoading || !user) return null;
     return query(collection(firestore, 'users'), orderBy('submissionDate', 'desc'));
-  }, [firestore]);
+  }, [firestore, isAuthLoading, user]);
 
-  const { data: users, isLoading } = useCollection<UserDoc>(usersQuery);
+  const { data: users, isLoading: isDataLoading } = useCollection<UserDoc>(usersQuery);
+
+  const isLoading = isAuthLoading || isDataLoading;
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    // Once auth state is resolved, if user is not authenticated via our custom logic, redirect.
+    if (!isAuthLoading && !isAuthenticated) {
       router.push('/');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, isAuthLoading, router]);
 
   const filteredUsers = useMemo(() => {
     if (!users) return [];
@@ -109,7 +113,8 @@ export default function AdminDashboard() {
     }
   };
 
-  if (!isAuthenticated) {
+  // Show a loading spinner until auth is resolved and we've confirmed the user is authenticated with our custom logic
+  if (isAuthLoading || !isAuthenticated) {
     return (
         <div className="flex h-screen items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin" />
