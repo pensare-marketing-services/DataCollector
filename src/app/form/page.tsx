@@ -54,10 +54,10 @@ export default function FormPage() {
 
   return (
     <div 
-        className="relative min-h-screen w-full bg-cover bg-center"
+        className="relative min-h-screen w-full bg-contain bg-no-repeat bg-center"
         style={{ backgroundImage: `url(${placeholderImages.logo.src})` }}
     >
-        <div className="absolute inset-0 bg-background/90 dark:bg-black/90 backdrop-blur-sm" />
+        <div className="absolute inset-0 bg-background/80 dark:bg-black/80 backdrop-blur-sm" />
         <main className="relative z-10 container mx-auto flex flex-col items-center justify-center p-4 min-h-screen">
             <div className="w-full max-w-2xl">
             {
