@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useMemo, useState } from 'react';
@@ -192,12 +193,12 @@ export default function AdminDashboard() {
                         ) : filteredUsers.length > 0 ? (
                             filteredUsers.map((user) => (
                                 <TableRow key={user.id}>
-                                    <TableCell className="font-medium">{user.name}</TableCell>
+                                    <TableCell className="font-medium capitalize">{user.name}</TableCell>
                                     <TableCell>{user.phone}</TableCell>
                                     <TableCell>{user.age}</TableCell>
-                                    <TableCell>{user.mandalam}</TableCell>
-                                    <TableCell>{user.mekhala}</TableCell>
-                                    <TableCell>{user.unit}</TableCell>
+                                    <TableCell className="capitalize">{user.mandalam}</TableCell>
+                                    <TableCell className="capitalize">{user.mekhala}</TableCell>
+                                    <TableCell className="capitalize">{user.unit}</TableCell>
                                 </TableRow>
                             ))
                         ) : (
