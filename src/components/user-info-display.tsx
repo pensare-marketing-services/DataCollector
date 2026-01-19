@@ -145,10 +145,11 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
 
   return (
     <Card className="w-full bg-transparent border-0 shadow-none">
-      <CardHeader>
-        <CardTitle className="text-center text-2xl font-bold">Member Slip</CardTitle>
+      <h1 className="font-malayalam text-xl font-bold text-center p-4">നമുക്ക് ഒരുമിച്ച് പോരാടാം, മെച്ചപ്പെട്ടൊരു നാളേക്കായി!</h1>
+      <CardHeader className="pt-0">
+        <CardTitle className="font-malayalam text-center text-sm font-normal">പ്രിയ സുഹൃത്തേ, അഖിലേന്ത്യാ യൂത്ത് ഫെഡറേഷൻ (AIYF) അംഗത്വ ക്യാമ്പയിന്റെ ഭാഗമായതിന് നന്ദി. ജനാധിപത്യത്തിൻ്റെയും മതേതരത്വത്തിൻ്റെയും കാവലാളാകാനുള്ള താങ്കളുടെ ഈ തീരുമാനം അഭിനന്ദനാർഹമാണ്. താങ്കളുടെ അംഗത്വ അപേക്ഷ വിജയകരമായി പൂർത്തിയായിരിക്കുന്നു.</CardTitle>
       </CardHeader>
-      <div className="p-6 pt-0">
+      {/* <div className="p-6 pt-0">
         <div className="flex flex-row items-center gap-6">
           <Avatar className="h-28 w-28 border-4 border-secondary">
             <AvatarImage src={userData.photoURL} alt={userData.name} />
@@ -176,7 +177,7 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
                 </div>
             </div>
         </div>
-      </div>
+      </div> */}
 
       <CardContent>
         <div className="space-y-2">

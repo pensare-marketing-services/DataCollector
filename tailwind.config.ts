@@ -13,6 +13,7 @@ export default {
         body: ['Figtree', 'sans-serif'],
         headline: ['Figtree', 'sans-serif'],
         code: ['monospace'],
+        malayalam: ['"Anek Malayalam"', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',

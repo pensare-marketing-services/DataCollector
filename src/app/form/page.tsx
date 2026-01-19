@@ -31,8 +31,8 @@ export default function FormPage() {
       const newUserData = await submitUserData(app, values);
       setUserData(newUserData);
       toast({
-        title: "Success!",
-        description: "Your data has been submitted successfully.",
+        title: "നമുക്ക് ഒരുമിച്ച് പോരാടാം, മെച്ചപ്പെട്ടൊരു നാളേക്കായി!!",
+        description: "പ്രിയ സുഹൃത്തേ, അഖിലേന്ത്യാ യൂത്ത് ഫെഡറേഷൻ (AIYF) അംഗത്വ ക്യാമ്പയിന്റെ ഭാഗമായതിന് നന്ദി. ജനാധിപത്യത്തിൻ്റെയും മതേതരത്വത്തിൻ്റെയും കാവലാളാകാനുള്ള താങ്കളുടെ ഈ തീരുമാനം അഭിനന്ദനാർഹമാണ്. താങ്കളുടെ അംഗത്വ അപേക്ഷ വിജയകരമായി പൂർത്തിയായിരിക്കുന്നു..",
       });
       
       const auth = getAuth(app);
