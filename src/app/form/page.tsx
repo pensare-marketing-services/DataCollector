@@ -61,10 +61,10 @@ export default function FormPage() {
                           !userData ? (
                             <>
                               <Image
-                                src={placeholderImages.logo.src}
-                                alt={placeholderImages.logo.alt}
-                                width={placeholderImages.logo.width}
-                                height={placeholderImages.logo.height}
+                                src={placeholderImages.formHeader.src}
+                                alt={placeholderImages.formHeader.alt}
+                                width={placeholderImages.formHeader.width}
+                                height={placeholderImages.formHeader.height}
                                 className="w-full h-auto"
                               />
                               <DataCollectionForm onSubmit={handleFormSubmit} isSubmitting={isSubmitting} />

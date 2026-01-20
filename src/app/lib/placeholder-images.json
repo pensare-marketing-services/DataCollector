@@ -1,8 +1,14 @@
 {
-  "logo": {
-    "src": "/header.jpg",
+  "formHeader": {
+    "src": "/formimg.jpg",
     "width": 800,
     "height": 200,
     "alt": "Form Header"
+  },
+  "pdfHeader": {
+    "src": "/headerpdf.jpeg",
+    "width": 800,
+    "height": 200,
+    "alt": "PDF Header"
   }
 }

@@ -7,11 +7,36 @@ import type { UserData } from "./data-collection-form"
 import { Button } from "@/components/ui/button"
 import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
+import placeholderImages from "@/app/lib/placeholder-images.json";
 
 interface UserInfoDisplayProps {
   userData: UserData;
   onGoBack: () => void;
 }
+
+/**
+ * Fetches an image from a given URL and returns it as a base64 data URL.
+ * This is a reliable way to load images for client-side libraries like jsPDF.
+ */
+const getImageAsDataUrl = async (url: string): Promise<string | null> => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch image: ${response.statusText}`);
+        }
+        const blob = await response.blob();
+        return new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    } catch (error) {
+        console.error(`Could not load image from ${url}:`, error);
+        return null;
+    }
+};
+
 
 export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
   const { toast } = useToast();
@@ -21,76 +46,59 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
     const margin = 15;
-    let yPos = margin; // Start with top margin
+    let yPos = margin;
 
     // --- 1. Header Image ---
-    try {
-        const headerImg = new Image();
-        headerImg.src = '/header.jpg'; // Assumes header.jpg is in the public folder
-        await new Promise((resolve, reject) => {
-            headerImg.onload = resolve;
-            headerImg.onerror = (err) => {
-                console.error("PDF Header Image Error: Could not load /header.jpg.", err);
-                // Resolve to continue without the image, preventing PDF generation from failing
-                resolve(null); 
-            };
-        });
-
-        if (headerImg.width > 0) {
-            const imgProps = pdf.getImageProperties(headerImg);
-            // Calculate width and height with padding
-            const imageWidth = pdfWidth - (margin * 2);
-            const imgHeight = (imgProps.height * imageWidth) / imgProps.width;
-            // Limit header to a max of 20% of the page height
-            const finalImageHeight = Math.min(imgHeight, pdfHeight * 0.2); 
-            
-            pdf.addImage(headerImg, 'PNG', margin, yPos, imageWidth, finalImageHeight);
-            yPos += finalImageHeight; // Set current Y position to the bottom of the header
-        }
-    } catch (e) {
+    const headerImageDataUrl = await getImageAsDataUrl(placeholderImages.pdfHeader.src);
+    if (headerImageDataUrl) {
+      try {
+        const imgProps = pdf.getImageProperties(headerImageDataUrl);
+        const imageWidth = pdfWidth - (margin * 2);
+        const imgHeight = (imgProps.height * imageWidth) / imgProps.width;
+        const finalImageHeight = Math.min(imgHeight, pdfHeight * 0.2);
+        
+        const format = placeholderImages.pdfHeader.src.toLowerCase().endsWith('.png') ? 'PNG' : 'JPEG';
+        pdf.addImage(headerImageDataUrl, format, margin, yPos, imageWidth, finalImageHeight);
+        yPos += finalImageHeight;
+      } catch (e) {
         console.error("An error occurred while adding the header image to the PDF.", e);
-        // This error is handled gracefully, so we let the PDF generation continue.
+      }
     }
     
-    // Add some space after the header
     yPos += 10;
 
     // --- 2. Member Info & User Photo ---
     const topContentY = yPos;
     const submissionDate = new Date(userData.submissionDate).toLocaleDateString('en-GB');
 
-    // Add Member Details
     pdf.setFontSize(10);
     pdf.setFont("helvetica", "normal");
     pdf.text(`Member ID: ${userData.memberId}`, margin, topContentY + 5);
     pdf.text(`Date: ${submissionDate}`, margin, topContentY + 10);
 
-    let topSectionHeight = 15; // Minimum height for the text block
+    let topSectionHeight = 15;
 
-    // Add User Photo
+    // Add User Photo (if it exists) using the same reliable data URL method
     if (userData.photoURL) {
-        try {
-            const userImg = new Image();
-            userImg.src = userData.photoURL;
-            await new Promise((resolve, reject) => {
-                userImg.onload = resolve;
-                userImg.onerror = reject;
-            });
-            
-            const imgSize = 30; // 30mm x 30mm square
-            const xPosImg = pdfWidth - margin - imgSize;
-            pdf.addImage(userImg, 'PNG', xPosImg, topContentY, imgSize, imgSize);
-            // The section's total height is the larger of the text block or the user photo
-            topSectionHeight = Math.max(topSectionHeight, imgSize); 
-        } catch (e) {
-            console.error("Could not add user photo to PDF", e);
-        }
+      // The photoURL is already a data URL from the form, so no need to fetch.
+      try {
+        const imgProps = pdf.getImageProperties(userData.photoURL);
+        const imgSize = 30;
+        const xPosImg = pdfWidth - margin - imgSize;
+        
+        // Extract format from the data URL mime type
+        const format = imgProps.fileType === 'PNG' ? 'PNG' : 'JPEG';
+        pdf.addImage(userData.photoURL, format, xPosImg, topContentY, imgSize, imgSize);
+        topSectionHeight = Math.max(topSectionHeight, imgSize);
+      } catch (e) {
+        console.error("Could not add user photo to PDF", e);
+      }
     }
 
-    yPos = topContentY + topSectionHeight + 5; // Add space below this section
+    yPos = topContentY + topSectionHeight + 5;
 
     // --- 3. Separator Line ---
-    pdf.setDrawColor(200); // light grey
+    pdf.setDrawColor(200);
     pdf.line(margin, yPos, pdfWidth - margin, yPos);
     yPos += 10;
 
@@ -100,16 +108,16 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
     const col2X = margin + 50; 
     
     const details = [
-        { label: "Name", value: userData.name },
-        { label: "Age", value: userData.age.toString() },
-        { label: "Phone Number", value: userData.phone },
-        { label: "Mandalam", value: userData.mandalam },
-        { label: "Mekhala", value: userData.mekhala },
-        { label: "Unit", value: userData.unit },
+        { label: "Name", value: userData.name || 'N/A' },
+        { label: "Age", value: userData.age?.toString() || 'N/A' },
+        { label: "Phone Number", value: userData.phone || 'N/A' },
+        { label: "Mandalam", value: userData.mandalam || 'N/A' },
+        { label: "Mekhala", value: userData.mekhala || 'N/A' },
+        { label: "Unit", value: userData.unit || 'N/A' },
     ];
     
     details.forEach(detail => {
-        if (yPos > pdfHeight - margin) { // Check for page break
+        if (yPos > pdfHeight - margin) {
             pdf.addPage();
             yPos = margin;
         }
@@ -155,12 +163,9 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
             text: `AIYF Profile for ${userData.name}`,
         };
         
-        // Check if sharing is supported and if the file can be shared
         if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
             await navigator.share(shareData);
-            // No toast on success, as the share sheet provides its own feedback.
         } else {
-            // If sharing files is not supported, fallback to downloading the PDF.
             toast({
               title: "File sharing not supported",
               description: "Your browser doesn't support sharing files. The PDF will be downloaded instead.",
@@ -169,7 +174,6 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
         }
 
     } catch (error) {
-        // Ignore AbortError which happens when the user closes the share dialog
         if ((error as Error).name !== 'AbortError') {
           console.error("PDF Share Error:", error);
           toast({
