@@ -27,7 +27,7 @@ import { Checkbox } from "./ui/checkbox"
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   photo: z.string().optional(), // Will store the base64 data URL
-  phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, { message: "Please enter a valid phone number." }),
+  phone: z.string().regex(/^\+?\d{10,15}$/, { message: "Please enter a valid phone number (10-15 digits)." }),
   age: z.coerce.number().int().min(1, "Age must be a positive number.").max(120, "Please enter a valid age."),
   mandalam: z.string(),
   mekhala: z.string(),
