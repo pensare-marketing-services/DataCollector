@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -56,7 +55,11 @@ export function Combobox({
       </PopoverTrigger>
       <PopoverContent className="w-full p-0" style={{width: "var(--radix-popover-trigger-width)"}}>
         {/* The onPointerDown event handler prevents the popover from closing on touch, which allows the onSelect event on the CommandItem to be triggered on mobile. */}
-        <Command onPointerDown={(e) => e.preventDefault()}>
+        <Command onPointerDown={(e) => {
+          if (e.pointerType === 'touch') {
+            e.preventDefault();
+          }
+        }}>
           <CommandInput placeholder={searchPlaceholder} />
           <CommandList>
             <CommandEmpty>{emptyText}</CommandEmpty>
