@@ -49,7 +49,8 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
     let yPos = margin;
 
     // --- 1. Header Image ---
-    const headerImageDataUrl = await getImageAsDataUrl(placeholderImages.pdfHeader.src);
+    const headerImageSrc = new URL(placeholderImages.pdfHeader.src, window.location.origin).href;
+    const headerImageDataUrl = await getImageAsDataUrl(headerImageSrc);
     if (headerImageDataUrl) {
       try {
         const imgProps = pdf.getImageProperties(headerImageDataUrl);
@@ -67,7 +68,7 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
     
     yPos += 10;
 
-    // --- 2. Member Info & User Photo ---
+    // --- 2. Member Info ---
     const topContentY = yPos;
     const submissionDate = new Date(userData.submissionDate).toLocaleDateString('en-GB');
 
@@ -76,25 +77,7 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
     pdf.text(`Member ID: ${userData.memberId}`, margin, topContentY + 5);
     pdf.text(`Date: ${submissionDate}`, margin, topContentY + 10);
 
-    let topSectionHeight = 15;
-
-    // Add User Photo (if it exists) using the same reliable data URL method
-    if (userData.photoURL) {
-      // The photoURL is already a data URL from the form, so no need to fetch.
-      try {
-        const imgProps = pdf.getImageProperties(userData.photoURL);
-        const imgSize = 30;
-        const xPosImg = pdfWidth - margin - imgSize;
-        
-        // Extract format from the data URL mime type
-        const format = imgProps.fileType === 'PNG' ? 'PNG' : 'JPEG';
-        pdf.addImage(userData.photoURL, format, xPosImg, topContentY, imgSize, imgSize);
-        topSectionHeight = Math.max(topSectionHeight, imgSize);
-      } catch (e) {
-        console.error("Could not add user photo to PDF", e);
-      }
-    }
-
+    const topSectionHeight = 15;
     yPos = topContentY + topSectionHeight + 5;
 
     // --- 3. Separator Line ---
@@ -102,10 +85,49 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
     pdf.line(margin, yPos, pdfWidth - margin, yPos);
     yPos += 10;
 
-    // --- 4. User Details ---
+    const detailsStartY = yPos;
+
+    // --- 4. User Photo (on the right) ---
+    let photoSectionHeight = 0;
+    if (userData.photoURL) {
+      try {
+        const photoBoxWidth = 50;
+        const photoBoxHeight = 50;
+        const photoBoxX = pdfWidth - margin - photoBoxWidth;
+        const photoBoxY = detailsStartY;
+
+        const imgProps = pdf.getImageProperties(userData.photoURL);
+        const imgRatio = imgProps.width / imgProps.height;
+        const boxRatio = photoBoxWidth / photoBoxHeight;
+
+        let finalWidth, finalHeight, finalX, finalY;
+
+        if (imgRatio > boxRatio) { // Image is wider than the box, fit to box width
+            finalWidth = photoBoxWidth;
+            finalHeight = photoBoxWidth / imgRatio;
+            finalX = photoBoxX;
+            finalY = photoBoxY + (photoBoxHeight - finalHeight) / 2; // Center vertically
+        } else { // Image is taller or same ratio, fit to box height
+            finalHeight = photoBoxHeight;
+            finalWidth = photoBoxHeight * imgRatio;
+            finalY = photoBoxY;
+            finalX = photoBoxX + (photoBoxWidth - finalWidth) / 2; // Center horizontally
+        }
+
+        const format = imgProps.fileType === 'PNG' ? 'PNG' : 'JPEG';
+        pdf.addImage(userData.photoURL, format, finalX, finalY, finalWidth, finalHeight);
+        photoSectionHeight = photoBoxHeight + 10; // Add some padding below the photo
+
+      } catch (e) {
+        console.error("Could not add user photo to PDF", e);
+      }
+    }
+
+    // --- 5. User Details (on the left) ---
     pdf.setFontSize(12);
     const col1X = margin;
-    const col2X = margin + 50; 
+    const col2X = margin + 40; 
+    let detailsY = detailsStartY;
     
     const details = [
         { label: "Name", value: userData.name || 'N/A' },
@@ -117,16 +139,20 @@ export function UserInfoDisplay({ userData, onGoBack }: UserInfoDisplayProps) {
     ];
     
     details.forEach(detail => {
-        if (yPos > pdfHeight - margin) {
+        if (detailsY > pdfHeight - margin) {
             pdf.addPage();
-            yPos = margin;
+            detailsY = margin;
         }
         pdf.setFont("helvetica", "bold");
-        pdf.text(`${detail.label}:`, col1X, yPos);
+        pdf.text(`${detail.label}:`, col1X, detailsY);
         pdf.setFont("helvetica", "normal");
-        pdf.text(detail.value, col2X, yPos);
-        yPos += 10;
+        pdf.text(detail.value, col2X, detailsY);
+        detailsY += 10;
     });
+
+    const detailsHeight = detailsY - detailsStartY;
+    yPos = detailsStartY + Math.max(detailsHeight, photoSectionHeight);
+
 
     return pdf;
   };
